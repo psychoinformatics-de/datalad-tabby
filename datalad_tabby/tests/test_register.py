@@ -3,9 +3,9 @@ from datalad.tests.utils_pytest import assert_result_count
 
 def test_register():
     import datalad.api as da
-    assert hasattr(da, 'hello_cmd')
+    assert hasattr(da, 'tabby_clone')
     assert_result_count(
-        da.hello_cmd(),
+        da.tabby_clone(on_failure='ignore'),
         1,
-        action='demo')
+        action='tabby_clone')
 
