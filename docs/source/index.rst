@@ -1,30 +1,34 @@
-DataLad extension template
-**************************
+DataLad Tabby
+*************
 
-This is a template for creating a `DataLad <http://datalad.org>`__ extension
-that equips DataLad with additional functionality.
+DataLad Tabby is a `DataLad <http://datalad.org>`__ extension for
+working with datasets described using nothing but tabular files
+("tabby files").
+
+.. toctree::
+   :maxdepth: 2
+
+   tabby-spec
 
 
-API
-===
+Extension API
+=============
 
 High-level API commands
 -----------------------
 
-.. currentmodule:: datalad.api
-.. autosummary::
-   :toctree: generated
+.. toctree::
+   :maxdepth: 2
 
-   tabby_clone
-
+   api.rst
 
 Command line reference
 ----------------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   generated/man/datalad-tabby-clone
+   cmd.rst
 
 
 Indices and tables
