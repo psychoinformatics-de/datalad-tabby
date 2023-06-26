@@ -5,8 +5,14 @@ DataLad Tabby is a `DataLad <http://datalad.org>`__ extension for
 working with datasets described using nothing but tabular files
 ("tabby files").
 
-API
-===
+.. toctree::
+   :maxdepth: 2
+
+   tabby-spec
+
+
+Extension API
+=============
 
 High-level API commands
 -----------------------
