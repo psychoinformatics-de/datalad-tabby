@@ -9,6 +9,7 @@
 [![GitHub release](https://img.shields.io/github/release/psychoinformatics-de/datalad-tabby.svg)](https://GitHub.com/psychoinformatics-de/datalad-tabby/releases/)
 [![PyPI version fury.io](https://badge.fury.io/py/datalad-tabby.svg)](https://pypi.python.org/pypi/datalad-tabby/)
 
+The documentation for this package is provided at http://docs.datalad.org/projects/tabby
 
 
 ## Acknowledgements
