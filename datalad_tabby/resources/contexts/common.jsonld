@@ -1,0 +1,14 @@
+{
+  "bibo": "http://purl.org/ontology/bibo/",
+  "schema": "https://schema.org/",
+  "uom": "http://www.ontology-of-units-of-measure.org/resource/om-2/"
+  "access-url": "schema:url",
+  "description": "schema:description",
+  "doi": "bibo:doi",
+  "identifier": "schema:identifier",
+  "keywords": "schema:keywords",
+  "last-updated": "schema:dateModified",
+  "license": "schema:license",
+  "name": "schema:name",
+  "version": "schema:version",
+}
