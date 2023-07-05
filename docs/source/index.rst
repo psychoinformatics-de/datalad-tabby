@@ -14,21 +14,14 @@ working with datasets described using nothing but tabular files
 Extension API
 =============
 
-High-level API commands
------------------------
+Python tooling
+--------------
 
-.. toctree::
-   :maxdepth: 2
+.. currentmodule:: datalad_tabby
+.. autosummary::
+   :toctree: generated
 
-   api.rst
-
-Command line reference
-----------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   cmd.rst
+   io
 
 
 Indices and tables

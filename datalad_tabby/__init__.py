@@ -10,19 +10,8 @@ lgr = logging.getLogger('datalad.tabby')
 # to be found by datalad
 command_suite = (
     # description of the command suite, displayed in cmdline help
-    "DataLad Tabby command suite",
+    "Utilities for working with the `tabby` metadata format",
     [
-        # specification of a command, any number of commands can be defined
-        (
-            # importable module that contains the command implementation
-            'datalad_tabby.clone',
-            # name of the command class implementation in above module
-            'Clone',
-            # optional name of the command in the cmdline API
-            'tabby-clone',
-            # optional name of the command in the Python API
-            'tabby_clone'
-        ),
     ]
 )
 

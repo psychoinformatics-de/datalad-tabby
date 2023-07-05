@@ -1,3 +1,6 @@
+"""Input/output and conversion routines for tabby-format metadata records
+"""
+
 from __future__ import annotations
 
 import csv
