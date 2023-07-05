@@ -16,7 +16,7 @@ sample[organism-part]	whole body
 ""
 # please see all other sheets too
 # all further rows can be ignored, and only detail the relation ship of other data sheets with the dataset metadata record	
-author	@tabby-authors
+author	@tabby-many-authors
 funding	@tabby-many-funding
-has-part	@tabby-files
-publication	@tabby-publications
+has-part	@tabby-many-files
+publication	@tabby-many-publications
