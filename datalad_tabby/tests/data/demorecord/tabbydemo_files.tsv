@@ -1,4 +1,8 @@
-<Cell 'files'.A1>	<Cell 'files'.B1>	<Cell 'files'.C1>	<Cell 'files'.D1>	<Cell 'files'.E1>
-<Cell 'files'.A2>	<Cell 'files'.B2>	<Cell 'files'.C2>	<Cell 'files'.D2>	<Cell 'files'.E2>
-<Cell 'files'.A3>	<Cell 'files'.B3>	<Cell 'files'.C3>	<Cell 'files'.D3>	<Cell 'files'.E3>
-<Cell 'files'.A4>	<Cell 'files'.B4>	<Cell 'files'.C4>	<Cell 'files'.D4>	<Cell 'files'.E4>
+path[POSIX]	size[bytes]	checksum[md5]	url	
+raw/adelie.csv	23755	e7e2be6b203a221949f05e02fcefd853	https://portal.edirepository.org/nis/dataviewer?packageid=knb-lter-pal.219.3&entityid=002f3893385f710df69eeebe893144ff
+raw/gentoo.csv	11263	1549566fb97afa879dc9446edcf2015f	https://portal.edirepository.org/nis/dataviewer?packageid=knb-lter-pal.220.3&entityid=e03b43c924f226486f2f0ab6709d2381
+raw/chinstrap.csv	18872	e4b0710c69297031d63866ce8b888f25	https://portal.edirepository.org/nis/dataviewer?packageid=knb-lter-pal.221.2&entityid=fe853aa8f7a59aa84cdd3197619ef462
+
+
+
+
