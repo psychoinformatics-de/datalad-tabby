@@ -35,7 +35,7 @@ def load_tabby(
     ``dict`` or a ``list`` is returned.
 
     Other tabby tables/sheets are loaded when ``@tabby-single|many-`` import
-    statements are discovered. The corresponding data structures are replace
+    statements are discovered. The corresponding data structures then replace
     the import statement at its location.
 
     .. todo::
