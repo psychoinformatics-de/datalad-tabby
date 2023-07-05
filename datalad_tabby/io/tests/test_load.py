@@ -8,7 +8,7 @@ from . import tabby_tsv_record
 @pytest.fixture(scope="session")
 def tabby_record_basic_components(tmp_path_factory):
     rdir = tmp_path_factory.mktemp("rec")
-    single = rdir / 'rec_singletab.tsv'
+    single = rdir / 'rec__meta_singletab.tsv'
     single.write_text(
         # empty line up top
         "\n"
@@ -27,7 +27,7 @@ def tabby_record_basic_components(tmp_path_factory):
         'twomany': ['1', 'b', '3'],
         'sparse': ['s', '', 'f'],
     }
-    many = rdir / 'rec_manytab.tsv'
+    many = rdir / 'rec__meta_manytab.tsv'
     many.write_text(
         # first row MUST define header
         # there are two k2 columns, indicating that two values can be given
@@ -56,7 +56,7 @@ def tabby_record_basic_components(tmp_path_factory):
         {'k1': 'a', 'k2': 'b', 'k3': ['c', '1', '2', '3']},
         {'k1': 'a', 'k2': ['1', '2'], 'k3': 'b'},
     ]
-    root = rdir / 'rec_root.tsv'
+    root = rdir / 'rec__meta_root.tsv'
     root.write_text(
         "single\t@tabby-single-singletab\n"
         "many\t@tabby-many-manytab\n"
