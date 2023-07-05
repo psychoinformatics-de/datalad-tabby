@@ -128,21 +128,63 @@ def _load_tabby_many(
     jsonld: bool,
 ) -> List[Dict]:
     array = list()
+    fieldnames = None
     with src.open(newline='') as tsvfile:
-        reader = csv.DictReader(tsvfile, delimiter='\t')
+        # we cannot use DictReader -- we need to support identically named
+        # columns
+        reader = csv.reader(tsvfile, delimiter='\t')
         # row_id is useful for error reporting
         for row_id, row in enumerate(reader):
-            if row[reader.fieldnames[0]].startswith('#'):
-                # skip comment row
+            # row is a list of field, with only as many items
+            # as this particular row has columns
+            if not len(row) or not row[0] or row[0].startswith('#'):
+                # skip empty rows, rows with no key, or rows with
+                # a comment key
                 continue
-            # skip empty fields
-            row = {
-                k:
-                _resolve_value(v, src, jsonld=jsonld)
-                for k, v in row.items()
-                if v
+            if fieldnames is None:
+                # the first non-ignored row defines the property names/keys
+                # cut `val` short and remove trailing empty items
+                fieldnames = row[:_get_index_after_last_nonempty(row)]
+                print(f"\nFIELDS: {fieldnames}")
+                continue
+
+            # if we get here, this is a value row, representing an individual
+            # object
+            obj = {}
+            vals = [
+                # look for @tabby-... imports in values, and act on them.
+                # keep empty for now to maintain fieldname association
+                _resolve_value(v, src, jsonld=jsonld) if v else v
+                for v in row
+            ]
+            if len(vals) > len(fieldnames):
+                # we have extra values, merge then into the column
+                # corresponding to the last key
+                last_key_idx = len(fieldnames) - 1
+                lc_vals = vals[last_key_idx:]
+                lc_vals = lc_vals[:_get_index_after_last_nonempty(lc_vals)]
+                vals[last_key_idx] = lc_vals
+
+            # merge values with keys, amending duplicate keys as necessary
+            for i, k in enumerate(fieldnames):
+                if i >= len(vals):
+                    # no more values defined in this row, skip this key
+                    continue
+                v = vals[i]
+                if not v:
+                    # no value, nothing to store or append
+                    continue
+                # treat any key as a potential multi-value scenario
+                k_vals = obj.get(k, [])
+                k_vals.append(v)
+                obj[k] = k_vals
+
+            # simplify single-item lists to a plain value
+            obj = {
+                k: vals if len(vals) > 1 else vals[0]
+                for k, vals in obj.items()
             }
-            array.append(row)
+            array.append(obj)
     return array
 
 
