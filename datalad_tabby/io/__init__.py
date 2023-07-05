@@ -112,7 +112,7 @@ def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str):
 def _get_tabby_prefix_from_sheet_fpath(fpath: Path) -> str:
     stem = fpath.stem
     # stem up to, but not including, the last '_'
-    return stem[:(-1) * stem[::1].index('_') - 2]
+    return stem[:(-1) * stem[::-1].index('_') - 1]
 
 
 def _get_index_after_last_nonempty(val: List) -> int:
