@@ -104,7 +104,7 @@ def _resolve_value(v: str, src_sheet_fpath: Path, jsonld: bool):
     )
 
 
-def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str):
+def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
     return fpath.parent / \
         f'{_get_tabby_prefix_from_sheet_fpath(fpath)}_{sheet_name}.tsv'
 
@@ -137,7 +137,9 @@ def _load_tabby_many(
         for row_id, row in enumerate(reader):
             # row is a list of field, with only as many items
             # as this particular row has columns
-            if not len(row) or not row[0] or row[0].startswith('#'):
+            if not len(row) \
+                    or row[0].startswith('#') \
+                    or all(v is None for v in row):
                 # skip empty rows, rows with no key, or rows with
                 # a comment key
                 continue

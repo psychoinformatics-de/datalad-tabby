@@ -38,7 +38,7 @@ def tabby_record_basic_components(tmp_path_factory):
         # there is no such thing as a field-comment
         "1\t2\t\t#3\n"
         # empty fields are skipped
-        "f\t\t\tl\n"
+        "\t\t\tl\n"
         # t0o few fields are OK, remaining keys are skipped
         "one\ttwo\n"
         # too many fields values are appended to last key
@@ -51,7 +51,7 @@ def tabby_record_basic_components(tmp_path_factory):
     many_t = [
         {'k1': 'a', 'k2': 'b', 'k3': 'c'},
         {'k1': '1', 'k2': '2', 'k3': '#3'},
-        {'k1': 'f', 'k3': 'l'},
+        {'k3': 'l'},
         {'k1': 'one', 'k2': 'two'},
         {'k1': 'a', 'k2': 'b', 'k3': ['c', '1', '2', '3']},
         {'k1': 'a', 'k2': ['1', '2'], 'k3': 'b'},
