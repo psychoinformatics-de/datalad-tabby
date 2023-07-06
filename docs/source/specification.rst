@@ -53,19 +53,21 @@ The ``many`` layout
 This layout represents a series of homogeneous key-value mappings, equivalent
 to JSON-array comprising homogeneously structured JSON-objects.
 
-Any table row that is empty, or where the value in the first column starts with ``#`` is skipped.
+Any table row that is empty, or where the value in the first column starts with
+``#`` is skipped.
 
 The first non-skipped row defines a common set of keys. Every subsequent row
 represents an entity that is described with values corresponding to these
 common keys.
 
 When two columns are associated with the exact same key, there associated
-values are gathered into a list (JSON-array equivalent), with missing
-values being skipped.
+values are gathered into a list (JSON-array equivalent), with missing values
+being skipped.
 
-When a row contains columns with values beyond the column corresponding to
-the last defined key, all these values are gathered into a list (JSON-array equivalent) that include the values from the column of the last defined key,
-and is assigned as th value corresponding to that last key.
+When a row contains columns with values beyond the column corresponding to the
+last defined key, all these values are gathered into a list (JSON-array
+equivalent) that include the values from the column of the last defined key,
+and is assigned as the value corresponding to that last key.
 
 Single-item list values are compacted by removing the containing list and
 assigning the only items directly as the value.
@@ -74,7 +76,24 @@ assigning the only items directly as the value.
 Connecting tables
 =================
 
-TODO
+Information from metadata tables can be nested to create more complex data
+structures than what the two basic table layouts can represent individually.
+This is supported by two dedicated import statements:
+
+- ``@tabby-single-<tablename>``
+- ``@tabby-many-<tablename>``
+
+where ``<tablename>`` is the name of a `tabby` metadata record component, with
+which the corresponding file name can be constructed. For example, using
+``@tabby-many-authors`` in the TSV file ``penguins_dataset.tsv``, links the
+information in the file ``penguins_authors.tsv`` located in the same directory.
+
+The difference between the ``@tabby-single-...`` and the ``@tabby-many-...``
+statements is how the linked tables are being interpreted, and correspond to
+the two basic table layouts.
+
+These import statements can be used in any value field in any of the two table
+layouts. This includes value list (array) items.
 
 
 Defining context
