@@ -60,7 +60,7 @@ The first non-skipped row defines a common set of keys. Every subsequent row
 represents an entity that is described with values corresponding to these
 common keys.
 
-When two columns are associated with the exact same key, there associated
+When two columns are associated with the exact same key, their associated
 values are gathered into a list (JSON-array equivalent), with missing values
 being skipped.
 
@@ -99,10 +99,32 @@ layouts. This includes value list (array) items.
 Defining context
 ================
 
-TODO
+.. todo::
+   This functionality is not fully implemented yet
+
+Typically, the tabular components of a `tabby` metadata record use simple terms
+like ``license`` for keys and equally simple values like ``1.5`` for values.
+While this simplicity is useful for assembling a metadata record (possibly
+manually), it is insufficient for yielding precise, machine-readable records
+with comprehensively defined semantics. For that each and every term, like
+``license``, must have a proper definition, and quantitative values, like
+``1.5``, must come with information on the underlying concepts and possibly
+associated units.
+
+Providing the necessary context is possible by amending a metadata record with
+JSON-LD ``@context`` records that can be supplied, for each tabular component
+separately, via side-car files. Such a side-car files share the file name of
+the annotated TSV file without the extension, and a ``.ctx.jsonld`` suffix.
+For example, a context for ``penguins_authors.tsv`` would be read from
+``penguins_authors.ctx.jsonld`` in the same directory.
+
+The content of such a file must be a valid JSON-LD context.
 
 
 Amending metadata (enrichment)
 ==============================
 
-TODO
+.. todo::
+   This functionality is not fully implemented yet
+
+To-be-written
