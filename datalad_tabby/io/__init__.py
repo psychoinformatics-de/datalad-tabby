@@ -150,7 +150,6 @@ def _load_tabby_many(
                 # the first non-ignored row defines the property names/keys
                 # cut `val` short and remove trailing empty items
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
-                print(f"\nFIELDS: {fieldnames}")
                 continue
 
             # if we get here, this is a value row, representing an individual
