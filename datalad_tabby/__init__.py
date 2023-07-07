@@ -12,6 +12,7 @@ command_suite = (
     # description of the command suite, displayed in cmdline help
     "Utilities for working with the `tabby` metadata format",
     [
+        ('datalad_tabby.load', 'Load', 'tabby-load', 'tabby_load'),
     ]
 )
 
