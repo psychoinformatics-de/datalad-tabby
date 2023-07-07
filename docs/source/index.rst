@@ -26,16 +26,25 @@ or sources.
    specification.rst
 
 
-Acknowledgements
-================
+Command line reference
+======================
 
-This DataLad extension was developed with support from the Deutsche
-Forschungsgemeinschaft (DFG, German Research Foundation) under grant SFB 1451
-([431549029](https://gepris.dfg.de/gepris/projekt/431549029), INF project).
+.. toctree::
+   :maxdepth: 2
+
+   cmd.rst
 
 
 Extension API
 =============
+
+High-level API commands
+-----------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   api.rst
 
 Python tooling
 --------------
@@ -45,6 +54,14 @@ Python tooling
    :toctree: generated
 
    io
+
+
+Acknowledgements
+================
+
+This DataLad extension was developed with support from the Deutsche
+Forschungsgemeinschaft (DFG, German Research Foundation) under grant SFB 1451
+([431549029](https://gepris.dfg.de/gepris/projekt/431549029), INF project).
 
 
 Indices and tables
