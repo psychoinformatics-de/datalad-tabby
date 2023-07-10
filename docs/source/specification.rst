@@ -5,10 +5,28 @@ The scope of `tabby` metadata is the description of a single version of a
 dataset: a collection of files, curated for a particular purpose.
 
 A `tabby` metadata record comprises one or more files that share a common,
-arbitrary file name prefix. Each file name contains the name of a (tabular)
-metadata component. Each record, at minimum, contains a ``dataset``
-components. A minimal metadata record on a dataset about "penguins" could
-be represented in a single file: ``penguins_dataset.tsv``.
+arbitrary file name prefix. In addition to this prefix, each file name contains
+the name of a (tabular) metadata component. More generally, the name of all files
+comprising a `tabby` metadata record follow the scheme::
+
+    <dataset-id>_<component>.<extension>
+
+where
+
+- ``<dataset-id>`` is a character string that is common to all files comprising
+  a single `tabby` metadata record. This ID is an arbitrary, case-sensitive
+  string.
+
+  For cross-platform compatibility reasons it is *recommended* to limit
+  the identifier to ASCII values, and possibly alpha-numeric characters.
+
+- ``<component>`` is a unique name for a particular (tabular) component of a
+  metadata record. The name must be lower-case and only consist of the character
+  set ``[a-z0-9-]`` (letter, digits, and dash/hyphen).
+
+- ``<extension>`` uniquely identifies the nature of the information contained
+  in the file, such as ``tsv``, ``ctx.jsonld``, or ``override.json`` (see below
+  for details).
 
 
 Two table types
@@ -73,6 +91,18 @@ Single-item list values are compacted by removing the containing list and
 assigning the only items directly as the value.
 
 
+Metadata record entry point (root)
+==================================
+
+Each `tabby` metadata record comprises, at minimum, one tabular (TSV) component
+in ``single`` layout. A system using `tabby` records should establish a
+convention to identify this root record via a particular name, such as
+``dataset``.
+
+A minimal metadata record on a dataset about "penguins" can be represented in a
+single file, such as ``penguins_dataset.tsv``.
+
+
 Connecting tables
 =================
 
@@ -106,7 +136,7 @@ Typically, the tabular components of a `tabby` metadata record use simple terms
 like ``license`` for keys and equally simple values like ``1.5`` for values.
 While this simplicity is useful for assembling a metadata record (possibly
 manually), it is insufficient for yielding precise, machine-readable records
-with comprehensively defined semantics. For that each and every term, like
+with comprehensively defined semantics. For that, each and every term, like
 ``license``, must have a proper definition, and quantitative values, like
 ``1.5``, must come with information on the underlying concepts and possibly
 associated units.
