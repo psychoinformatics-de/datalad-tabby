@@ -121,10 +121,43 @@ For example, a context for ``penguins_authors.tsv`` would be read from
 The content of such a file must be a valid JSON-LD context.
 
 
-Amending metadata (enrichment)
-==============================
+Metadata enrichment (overrides)
+===============================
 
-.. todo::
-   This functionality is not fully implemented yet
+When the tabular components of a `tabby` metadata record are not detailed
+enough or precise enough, it is possible to enrich the record with additional
+information, without having to edit the TSV files. This is done via an
+overrides specification in a JSON side-car file.
 
-To-be-written
+The type of metadata enrichment described here is based on purely lexical
+operations that manipulate (string) values. For other types of metadata
+enrichment see `Defining context`_ or consider JSON-LD framing.
+
+The override side-car file has the file name of the annotated TSV file without
+the extension, plus a ``.override.json`` suffix.  For example, overrides for
+``penguins_authors.tsv`` would be read from ``penguins_authors.override.json``
+in the same directory.
+
+An override specification comprises of a single JSON object (key-value
+mapping), where a key indicates the target for injection or replacement, and
+the value is either a JSON literal, a format-string, or a JSON array (list) of
+these two types.
+
+Any string value is assumed to be a format-string, compliant with the `Python
+Format String Syntax`_, and will be interpolated using the key-value mapping
+for the respective object read from the TSV file.  Therefore the brace
+characters ``{}`` need to be quote in case a particular string is to be
+treated as a literal value.
+
+.. _Python Format String Syntax: https://docs.python.org/3/library/string.html#format-string-syntax
+
+The full override record is built before it is applied, at once, to the
+respective object read from a TSV file.
+
+When declaring an override for a ``many`` table, the override is applied
+individually to each object (row) defined in that table.
+
+For uniformity, any metadata value is represented as a multi-value list
+(array) at the point of interpolation override specifications. A single item
+value for the key ``name`` therefore has to be referenced as ``{name[0]}``, not
+just ``{name}``.
