@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 from typing import (
     Dict,
@@ -85,8 +86,12 @@ def _load_tabby_single(
             # another row for an already existing key overwrites
             # we support "sequence" values via multi-column values
             # supporting two ways just adds unecessary complexity
-            obj[key] = val if len(val) > 1 else val[0]
+            obj[key] = val
 
+    # apply any overrides
+    obj.update(_build_overrides(src, obj))
+
+    obj = _compact_obj(obj)
     # TODO with jsonld==True, looks for a context, look for a frame
     return obj
 
@@ -107,9 +112,40 @@ def _resolve_value(v: str, src_sheet_fpath: Path, jsonld: bool):
     )
 
 
+def _build_overrides(src: Path, obj: Dict):
+    overrides = {}
+    ofpath = _get_corresponding_override_fpath(src)
+    if not ofpath.exists():
+        # we have no overrides
+        return overrides
+    orspec = json.load(ofpath.open())
+    for k in orspec:
+        spec = orspec[k]
+        s = [
+            # interpolate str spec, anything else can pass
+            # through as-is
+            s.format(**obj) if isinstance(s, str) else s
+            for s in (spec if isinstance(spec, list) else [spec])
+        ]
+        overrides[k] = s
+    return overrides
+
+
 def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
     return fpath.parent / \
         f'{_get_tabby_prefix_from_sheet_fpath(fpath)}_{sheet_name}.tsv'
+
+
+#def _get_corresponding_context_fpath(fpath: Path) -> Path:
+#    return fpath.parent / f'{fpath.stem}.ctx.jsonld'
+#
+#
+#def _get_corresponding_frame_fpath(fpath: Path) -> Path:
+#    return fpath.parent / f'{fpath.stem}.frame.jsonld'
+
+
+def _get_corresponding_override_fpath(fpath: Path) -> Path:
+    return fpath.parent / f'{fpath.stem}.override.json'
 
 
 def _get_tabby_prefix_from_sheet_fpath(fpath: Path) -> str:
@@ -152,44 +188,57 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            # if we get here, this is a value row, representing an individual
-            # object
-            obj = {}
-            vals = [
-                # look for @tabby-... imports in values, and act on them.
-                # keep empty for now to maintain fieldname association
-                _resolve_value(v, src, jsonld=jsonld) if v else v
-                for v in row
-            ]
-            if len(vals) > len(fieldnames):
-                # we have extra values, merge then into the column
-                # corresponding to the last key
-                last_key_idx = len(fieldnames) - 1
-                lc_vals = vals[last_key_idx:]
-                lc_vals = lc_vals[:_get_index_after_last_nonempty(lc_vals)]
-                vals[last_key_idx] = lc_vals
-
-            # merge values with keys, amending duplicate keys as necessary
-            for i, k in enumerate(fieldnames):
-                if i >= len(vals):
-                    # no more values defined in this row, skip this key
-                    continue
-                v = vals[i]
-                if not v:
-                    # no value, nothing to store or append
-                    continue
-                # treat any key as a potential multi-value scenario
-                k_vals = obj.get(k, [])
-                k_vals.append(v)
-                obj[k] = k_vals
+            obj = _manyrow2obj(src, row, jsonld, fieldnames)
 
             # simplify single-item lists to a plain value
-            obj = {
-                k: vals if len(vals) > 1 else vals[0]
-                for k, vals in obj.items()
-            }
-            array.append(obj)
+            array.append(_compact_obj(obj))
     return array
+
+
+def _manyrow2obj(src: Path, row: List, jsonld: bool, fieldnames: List) -> Dict:
+    # if we get here, this is a value row, representing an individual
+    # object
+    obj = {}
+    vals = [
+        # look for @tabby-... imports in values, and act on them.
+        # keep empty for now to maintain fieldname association
+        _resolve_value(v, src, jsonld=jsonld) if v else v
+        for v in row
+    ]
+    if len(vals) > len(fieldnames):
+        # we have extra values, merge then into the column
+        # corresponding to the last key
+        last_key_idx = len(fieldnames) - 1
+        lc_vals = vals[last_key_idx:]
+        lc_vals = lc_vals[:_get_index_after_last_nonempty(lc_vals)]
+        vals[last_key_idx] = lc_vals
+
+    # merge values with keys, amending duplicate keys as necessary
+    for i, k in enumerate(fieldnames):
+        if i >= len(vals):
+            # no more values defined in this row, skip this key
+            continue
+        v = vals[i]
+        if not v:
+            # no value, nothing to store or append
+            continue
+        # treat any key as a potential multi-value scenario
+        k_vals = obj.get(k, [])
+        k_vals.append(v)
+        obj[k] = k_vals
+
+    # TODO optimize and not read spec from file for each row
+    # apply any overrides
+    obj.update(_build_overrides(src, obj))
+    return obj
+
+
+def _compact_obj(obj: Dict) -> Dict:
+    # simplify single-item lists to a plain value
+    return {
+        k: vals if len(vals) > 1 else vals[0]
+        for k, vals in obj.items()
+    }
 
 
 def xlsx2tabby(src: Path, dest: Path) -> List[Path]:

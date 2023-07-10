@@ -5,10 +5,28 @@ The scope of `tabby` metadata is the description of a single version of a
 dataset: a collection of files, curated for a particular purpose.
 
 A `tabby` metadata record comprises one or more files that share a common,
-arbitrary file name prefix. Each file name contains the name of a (tabular)
-metadata component. Each record, at minimum, contains a ``dataset``
-components. A minimal metadata record on a dataset about "penguins" could
-be represented in a single file: ``penguins_dataset.tsv``.
+arbitrary file name prefix. In addition to this prefix, each file name contains
+the name of a (tabular) metadata component. More generally, the name of all files
+comprising a `tabby` metadata record follow the scheme::
+
+    <dataset-id>_<component>.<extension>
+
+where
+
+- ``<dataset-id>`` is a character string that is common to all files comprising
+  a single `tabby` metadata record. This ID is an arbitrary, case-sensitive
+  string.
+
+  For cross-platform compatibility reasons it is *recommended* to limit
+  the identifier to ASCII values, and possibly alpha-numeric characters.
+
+- ``<component>`` is a unique name for a particular (tabular) component of a
+  metadata record. The name must be lower-case and only consist of the character
+  set ``[a-z0-9-]`` (letter, digits, and dash/hyphen).
+
+- ``<extension>`` uniquely identifies the nature of the information contained
+  in the file, such as ``tsv``, ``ctx.jsonld``, or ``override.json`` (see below
+  for details).
 
 
 Two table types
@@ -73,6 +91,18 @@ Single-item list values are compacted by removing the containing list and
 assigning the only items directly as the value.
 
 
+Metadata record entry point (root)
+==================================
+
+Each `tabby` metadata record comprises, at minimum, one tabular (TSV) component
+in ``single`` layout. A system using `tabby` records should establish a
+convention to identify this root record via a particular name, such as
+``dataset``.
+
+A minimal metadata record on a dataset about "penguins" can be represented in a
+single file, such as ``penguins_dataset.tsv``.
+
+
 Connecting tables
 =================
 
@@ -106,7 +136,7 @@ Typically, the tabular components of a `tabby` metadata record use simple terms
 like ``license`` for keys and equally simple values like ``1.5`` for values.
 While this simplicity is useful for assembling a metadata record (possibly
 manually), it is insufficient for yielding precise, machine-readable records
-with comprehensively defined semantics. For that each and every term, like
+with comprehensively defined semantics. For that, each and every term, like
 ``license``, must have a proper definition, and quantitative values, like
 ``1.5``, must come with information on the underlying concepts and possibly
 associated units.
@@ -121,10 +151,43 @@ For example, a context for ``penguins_authors.tsv`` would be read from
 The content of such a file must be a valid JSON-LD context.
 
 
-Amending metadata (enrichment)
-==============================
+Metadata enrichment (overrides)
+===============================
 
-.. todo::
-   This functionality is not fully implemented yet
+When the tabular components of a `tabby` metadata record are not detailed
+enough or precise enough, it is possible to enrich the record with additional
+information, without having to edit the TSV files. This is done via an
+overrides specification in a JSON side-car file.
 
-To-be-written
+The type of metadata enrichment described here is based on purely lexical
+operations that manipulate (string) values. For other types of metadata
+enrichment see `Defining context`_ or consider JSON-LD framing.
+
+The override side-car file has the file name of the annotated TSV file without
+the extension, plus a ``.override.json`` suffix.  For example, overrides for
+``penguins_authors.tsv`` would be read from ``penguins_authors.override.json``
+in the same directory.
+
+An override specification comprises of a single JSON object (key-value
+mapping), where a key indicates the target for injection or replacement, and
+the value is either a JSON literal, a format-string, or a JSON array (list) of
+these two types.
+
+Any string value is assumed to be a format-string, compliant with the `Python
+Format String Syntax`_, and will be interpolated using the key-value mapping
+for the respective object read from the TSV file.  Therefore the brace
+characters ``{}`` need to be quote in case a particular string is to be
+treated as a literal value.
+
+.. _Python Format String Syntax: https://docs.python.org/3/library/string.html#format-string-syntax
+
+The full override record is built before it is applied, at once, to the
+respective object read from a TSV file.
+
+When declaring an override for a ``many`` table, the override is applied
+individually to each object (row) defined in that table.
+
+For uniformity, any metadata value is represented as a multi-value list
+(array) at the point of interpolation override specifications. A single item
+value for the key ``name`` therefore has to be referenced as ``{name[0]}``, not
+just ``{name}``.
