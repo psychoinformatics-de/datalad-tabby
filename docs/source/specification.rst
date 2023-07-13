@@ -18,7 +18,7 @@ where
   string.
 
   For cross-platform compatibility reasons it is *recommended* to limit
-  the identifier to ASCII values, and possibly alpha-numeric characters.
+  the identifier to ASCII values, and possibly alphanumeric characters.
 
 - ``<component>`` is a unique name for a particular (tabular) component of a
   metadata record. The name must be lower-case and only consist of the character

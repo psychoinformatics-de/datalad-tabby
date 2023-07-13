@@ -85,7 +85,7 @@ def _load_tabby_single(
             # we do not amend values for keys!
             # another row for an already existing key overwrites
             # we support "sequence" values via multi-column values
-            # supporting two ways just adds unecessary complexity
+            # supporting two ways just adds unnecessary complexity
             obj[key] = val
 
     # apply any overrides
