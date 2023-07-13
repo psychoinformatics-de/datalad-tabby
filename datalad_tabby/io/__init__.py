@@ -26,6 +26,7 @@ def load_tabby(
     *,
     single: bool = True,
     jsonld: bool = True,
+    recursive: bool = True,
 ) -> Dict | List:
     """Load a tabby (TSV) record as structured (JSON(-LD)) data
 
@@ -40,7 +41,10 @@ def load_tabby(
 
     Other tabby tables/sheets are loaded when ``@tabby-single|many-`` import
     statements are discovered. The corresponding data structures then replace
-    the import statement at its location.
+    the import statement at its location. Recursive loading of other tables
+    can be deactivated by setting the ``mode`` parameter to ``nonrecursive``,
+    which will result in only the record available at the ``src`` path being
+    loaded.
 
     .. todo::
 
@@ -51,6 +55,7 @@ def load_tabby(
     return (_load_tabby_single if single else _load_tabby_many)(
         src=src,
         jsonld=jsonld,
+        recursive=recursive,
     )
 
 
@@ -58,6 +63,7 @@ def _load_tabby_single(
     *,
     src: Path,
     jsonld: bool,
+    recursive: bool = True,
 ) -> Dict:
     obj = {}
     with src.open(newline='') as tsvfile:
@@ -79,7 +85,8 @@ def _load_tabby_single(
                 continue
             # look for @tabby-... imports in values, and act on them
             val = [
-                _resolve_value(v, src, jsonld=jsonld)
+                _resolve_value(v, src, jsonld=jsonld,
+                               recursive=recursive)
                 for v in val
             ]
             # we do not amend values for keys!
@@ -96,18 +103,23 @@ def _load_tabby_single(
     return obj
 
 
-def _resolve_value(v: str, src_sheet_fpath: Path, jsonld: bool):
+def _resolve_value(
+    v: str,
+    src_sheet_fpath: Path,
+    jsonld: bool,
+    recursive: bool
+):
     src = src_sheet_fpath
     return (
         _load_tabby_single(
             src=_get_corresponding_sheet_fpath(src, v[14:]),
             jsonld=jsonld)
-        if v.startswith('@tabby-single-')
+        if v.startswith('@tabby-single-') and recursive
         else
         _load_tabby_many(
             src=_get_corresponding_sheet_fpath(src, v[12:]),
             jsonld=jsonld)
-        if v.startswith('@tabby-many-')
+        if v.startswith('@tabby-many-') and recursive
         else v
     )
 
@@ -165,6 +177,7 @@ def _load_tabby_many(
     *,
     src: Path,
     jsonld: bool,
+    recursive: bool = True,
 ) -> List[Dict]:
     array = list()
     fieldnames = None
@@ -188,21 +201,28 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            obj = _manyrow2obj(src, row, jsonld, fieldnames)
+            obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive)
 
             # simplify single-item lists to a plain value
             array.append(_compact_obj(obj))
     return array
 
 
-def _manyrow2obj(src: Path, row: List, jsonld: bool, fieldnames: List) -> Dict:
+def _manyrow2obj(
+    src: Path,
+    row: List,
+    jsonld: bool,
+    fieldnames: List,
+    recursive: bool,
+) -> Dict:
     # if we get here, this is a value row, representing an individual
     # object
     obj = {}
     vals = [
         # look for @tabby-... imports in values, and act on them.
         # keep empty for now to maintain fieldname association
-        _resolve_value(v, src, jsonld=jsonld) if v else v
+        _resolve_value(v, src, jsonld=jsonld,
+                       recursive=recursive) if v else v
         for v in row
     ]
     if len(vals) > len(fieldnames):

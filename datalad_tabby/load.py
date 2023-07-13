@@ -6,7 +6,10 @@ import json
 import logging
 
 import datalad_next.commands as dc
-from datalad_next.constraints import EnsurePath
+from datalad_next.constraints import (
+    EnsureChoice,
+    EnsurePath,
+)
 from datalad_next.uis import ui_switcher as ui
 
 from datalad_tabby.io import load_tabby
@@ -19,6 +22,7 @@ class _ParamValidator(dc.EnsureCommandParameterization):
         super().__init__(
             param_constraints=dict(
                 path=EnsurePath(lexists=True),
+                mode=EnsureChoice('recursive', 'nonrecursive')
             ),
         )
 
@@ -34,12 +38,18 @@ class Load(dc.ValidatedInterface):
         path=dc.Parameter(
             args=("path",),
             doc="""Path of the root tabby record component"""),
+        mode=dc.Parameter(
+            args=("--mode",),
+            doc="""The mode with wich to load a tabby record.
+            Should be one of 'recursive' (default), 'nonrecursive'.""",
+        ),
     )
 
     @staticmethod
     @dc.eval_results
     def __call__(
         path,
+        mode: str = 'recursive',
     ):
         rec = load_tabby(
             path,
@@ -47,6 +57,7 @@ class Load(dc.ValidatedInterface):
             single=True,
             # TODO expose as parameter
             jsonld=True,
+            recursive= mode == 'recursive'
         )
 
         yield dc.get_status_dict(
