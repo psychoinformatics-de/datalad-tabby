@@ -21,7 +21,7 @@ def test_tsv2xslx_roundtrip(tmp_path, tabby_tsv_record):
     xlsx_fpath = tabby2xlsx(tabby_tsv_record['root_sheet'], xlsx_dir)
     tsvs = xlsx2tabby(xlsx_fpath, tsv_dir)
 
-    # roundtripping via XLSX gives bit identicial outcome compared to
+    # roundtripping via XLSX gives bit identical outcome compared to
     # TSV starting point
     assert tabby_tsv_record['md5'] == {s.name: md5sum(s) for s in tsvs}
 
