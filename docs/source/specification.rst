@@ -150,6 +150,7 @@ For example, a context for ``penguins_authors.tsv`` would be read from
 
 The content of such a file must be a valid JSON-LD context.
 
+.. _sec-override-specification:
 
 Metadata enrichment (overrides)
 ===============================
@@ -190,4 +191,4 @@ individually to each object (row) defined in that table.
 For uniformity, any metadata value is represented as a multi-value list
 (array) at the point of interpolation override specifications. A single item
 value for the key ``name`` therefore has to be referenced as ``{name[0]}``, not
-just ``{name}``.
+just ``{name}``. See :ref:`sec-override-examples` for examples.
