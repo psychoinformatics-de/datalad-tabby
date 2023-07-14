@@ -1,12 +1,15 @@
 Usage examples
 **************
 
+.. _sec-override-examples:
+
 Metadata enrichment (overrides)
 ===============================
 
 The table below shows three data types which can be used in an
-override side-car file, ``*.override.json``. Examples in the table
-assume that a horizontal input table contained ``doi
+override side-car file, ``*.override.json`` (see
+:ref:`sec-override-specification` specification). Examples in the
+table assume that a horizontal input table contained ``doi
 https://doi.org/10.nnnnnn/example``, and the value stored under the
 ``doi`` key should be replaced. The same method can be used to add a
 new key (instead of changing the value of an existing one).
