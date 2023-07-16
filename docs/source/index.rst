@@ -24,6 +24,7 @@ or sources.
    :maxdepth: 2
 
    specification.rst
+   usage-examples.rst
 
 
 Command line reference
