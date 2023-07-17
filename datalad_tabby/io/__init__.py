@@ -41,10 +41,9 @@ def load_tabby(
 
     Other tabby tables/sheets are loaded when ``@tabby-single|many-`` import
     statements are discovered. The corresponding data structures then replace
-    the import statement at its location. Recursive loading of other tables
-    can be deactivated by setting the ``mode`` parameter to ``nonrecursive``,
-    which will result in only the record available at the ``src`` path being
-    loaded.
+    the import statement at its location. Setting the ``recursive`` flag to ``False``
+    disables table import, which will result in only the record available at the
+    ``src`` path being loaded.
 
     .. todo::
 
