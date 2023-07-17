@@ -9,8 +9,6 @@ from .. import (
     tabby2xlsx,
 )
 
-from . import tabby_tsv_record
-
 
 def test_tsv2xslx_roundtrip(tmp_path, tabby_tsv_record):
     xlsx_dir = tmp_path / 'xslx'

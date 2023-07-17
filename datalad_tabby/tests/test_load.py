@@ -3,20 +3,18 @@ import pytest
 
 from datalad.api import tabby_load
 
-from datalad_tabby.io import load_tabby
-# TODO move to conftest.py
 from datalad_next.constraints.exceptions import CommandParametrizationError
-from datalad_next.tests.fixtures import datalad_noninteractive_ui
-from datalad_tabby.io.tests import tabby_tsv_record
+
+from datalad_tabby.io import load_tabby
 
 
 def test_arguments(tabby_tsv_record):
     with pytest.raises(CommandParametrizationError):
         tabby_load()
-    
+
     with pytest.raises(CommandParametrizationError):
         tabby_load(tabby_tsv_record['root_sheet'], mode='bs')
-            
+
 
 def test_load(tabby_tsv_record, datalad_noninteractive_ui):
     res = tabby_load(tabby_tsv_record['root_sheet'])
@@ -31,7 +29,8 @@ def test_load(tabby_tsv_record, datalad_noninteractive_ui):
     rec = uil[0][1]
     assert json.loads(
         ''.join(rec)) == load_tabby(tabby_tsv_record['root_sheet'])
-    
+
+
 def test_load_nonrecursive(tabby_tsv_record, datalad_noninteractive_ui):
     res = tabby_load(
         tabby_tsv_record['root_sheet'],
@@ -44,4 +43,3 @@ def test_load_nonrecursive(tabby_tsv_record, datalad_noninteractive_ui):
         ''.join(rec)) == load_tabby(
         tabby_tsv_record['root_sheet'],
         recursive=False)
-
