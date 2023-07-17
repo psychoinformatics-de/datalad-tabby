@@ -40,7 +40,7 @@ class Load(dc.ValidatedInterface):
             doc="""Path of the root tabby record component"""),
         mode=dc.Parameter(
             args=("--mode",),
-            doc="""The mode with wich to load a tabby record.
+            doc="""The mode with which to load a tabby record.
             Should be one of 'recursive' (default), 'nonrecursive'.""",
         ),
     )
