@@ -55,6 +55,7 @@ def load_tabby(
         src=src,
         jsonld=jsonld,
         recursive=recursive,
+        trace=[],
     )
 
 
@@ -63,6 +64,7 @@ def _load_tabby_single(
     src: Path,
     jsonld: bool,
     recursive: bool,
+    trace: List,
 ) -> Dict:
     obj = {}
     with src.open(newline='') as tsvfile:
@@ -84,8 +86,13 @@ def _load_tabby_single(
                 continue
             # look for @tabby-... imports in values, and act on them
             val = [
-                _resolve_value(v, src, jsonld=jsonld,
-                               recursive=recursive)
+                _resolve_value(
+                    v,
+                    src,
+                    jsonld=jsonld,
+                    recursive=recursive,
+                    trace=trace,
+                )
                 for v in val
             ]
             # we do not amend values for keys!
@@ -107,6 +114,7 @@ def _resolve_value(
     src_sheet_fpath: Path,
     jsonld: bool,
     recursive: bool,
+    trace: List,
 ):
     if not recursive or not v.startswith('@tabby-'):
         return v
@@ -121,10 +129,13 @@ def _resolve_value(
         # strange, but not enough reason to fail
         return v
 
+    trace = _build_import_trace(src, trace)
+
     return loader(
         src=src,
         jsonld=jsonld,
         recursive=recursive,
+        trace=trace,
     )
 
 
@@ -177,11 +188,23 @@ def _get_index_after_last_nonempty(val: List) -> int:
     return 0
 
 
+def _build_import_trace(src: Path, trace: List) -> List:
+    if src in trace:
+        raise RecursionError(
+            f'circular import: {src} is (indirectly) referencing itself')
+
+    # TODO if we ever want to go parallel, we should produce an independent
+    # list instance here
+    trace.append(src)
+    return trace
+
+
 def _load_tabby_many(
     *,
     src: Path,
     jsonld: bool,
     recursive: bool,
+    trace: List,
 ) -> List[Dict]:
     array = list()
     fieldnames = None
@@ -205,7 +228,7 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive)
+            obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
 
             # simplify single-item lists to a plain value
             array.append(_compact_obj(obj))
@@ -218,6 +241,7 @@ def _manyrow2obj(
     jsonld: bool,
     fieldnames: List,
     recursive: bool,
+    trace: List,
 ) -> Dict:
     # if we get here, this is a value row, representing an individual
     # object
@@ -225,8 +249,13 @@ def _manyrow2obj(
     vals = [
         # look for @tabby-... imports in values, and act on them.
         # keep empty for now to maintain fieldname association
-        _resolve_value(v, src, jsonld=jsonld,
-                       recursive=recursive) if v else v
+        _resolve_value(
+            v,
+            src,
+            jsonld=jsonld,
+            recursive=recursive,
+            trace=trace,
+        ) if v else v
         for v in row
     ]
     if len(vals) > len(fieldnames):
