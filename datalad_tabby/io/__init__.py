@@ -237,6 +237,10 @@ def _load_tabby_many(
 ) -> List[Dict]:
     array = list()
     fieldnames = None
+
+    # with jsonld==True, looks for a context
+    ctx = _get_corresponding_context(src)
+
     with src.open(newline='') as tsvfile:
         # we cannot use DictReader -- we need to support identically named
         # columns
@@ -258,6 +262,9 @@ def _load_tabby_many(
                 continue
 
             obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
+
+            if ctx:
+                _assigned_context(obj, ctx)
 
             # simplify single-item lists to a plain value
             array.append(_compact_obj(obj))
