@@ -80,3 +80,23 @@ def test_load_tabby(tabby_record_basic_components):
             jsonld=False,
         )
         assert loaded == trbc['target'][t]
+
+def test_load_tabby_nonrecursive(tabby_record_basic_components):
+    trbc = tabby_record_basic_components
+    loaded_no_r = load_tabby(
+        trbc['input']['root'],
+        single=True,
+        jsonld=False,
+        recursive=False,
+    )
+    assert loaded_no_r == {
+        'many': '@tabby-many-manytab',
+        'single': '@tabby-single-singletab'
+    }
+    loaded_r = load_tabby(
+        trbc['input']['root'],
+        single=True,
+        jsonld=False,
+        recursive=True,
+    )
+    assert loaded_r == trbc['target']['root']
