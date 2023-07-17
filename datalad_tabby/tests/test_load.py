@@ -34,7 +34,7 @@ def test_load(tabby_tsv_record, datalad_noninteractive_ui):
 def test_load_nonrecursive(tabby_tsv_record, datalad_noninteractive_ui):
     res = tabby_load(
         tabby_tsv_record['root_sheet'],
-        mode='nonrecursive'
+        mode='single'
     )
     res = res[0]
     uil = datalad_noninteractive_ui.log

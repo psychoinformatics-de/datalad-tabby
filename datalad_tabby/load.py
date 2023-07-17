@@ -22,7 +22,7 @@ class _ParamValidator(dc.EnsureCommandParameterization):
         super().__init__(
             param_constraints=dict(
                 path=EnsurePath(lexists=True),
-                mode=EnsureChoice('recursive', 'nonrecursive')
+                mode=EnsureChoice('jsonld', 'json', 'single')
             ),
         )
 
@@ -40,8 +40,7 @@ class Load(dc.ValidatedInterface):
             doc="""Path of the root tabby record component"""),
         mode=dc.Parameter(
             args=("--mode",),
-            doc="""The mode with which to load a tabby record.
-            Should be one of 'recursive' (default), 'nonrecursive'.""",
+            doc="""The mode with which to load a tabby record.""",
         ),
     )
 
@@ -49,15 +48,14 @@ class Load(dc.ValidatedInterface):
     @dc.eval_results
     def __call__(
         path,
-        mode: str = 'recursive',
+        mode: str = 'jsonld',
     ):
         rec = load_tabby(
             path,
             # TODO expose as parameter
             single=True,
-            # TODO expose as parameter
-            jsonld=True,
-            recursive= mode == 'recursive'
+            jsonld=mode == 'jsonld',
+            recursive=mode != 'single'
         )
 
         yield dc.get_status_dict(
