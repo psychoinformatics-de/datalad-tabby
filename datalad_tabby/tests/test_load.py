@@ -42,4 +42,5 @@ def test_load_nonrecursive(tabby_tsv_record, datalad_noninteractive_ui):
     assert json.loads(
         ''.join(rec)) == load_tabby(
         tabby_tsv_record['root_sheet'],
-        recursive=False)
+        recursive=False,
+        jsonld=False)
