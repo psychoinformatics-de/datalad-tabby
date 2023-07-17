@@ -62,7 +62,7 @@ def _load_tabby_single(
     *,
     src: Path,
     jsonld: bool,
-    recursive: bool = True,
+    recursive: bool,
 ) -> Dict:
     obj = {}
     with src.open(newline='') as tsvfile:
@@ -106,20 +106,25 @@ def _resolve_value(
     v: str,
     src_sheet_fpath: Path,
     jsonld: bool,
-    recursive: bool
+    recursive: bool,
 ):
-    src = src_sheet_fpath
-    return (
-        _load_tabby_single(
-            src=_get_corresponding_sheet_fpath(src, v[14:]),
-            jsonld=jsonld)
-        if v.startswith('@tabby-single-') and recursive
-        else
-        _load_tabby_many(
-            src=_get_corresponding_sheet_fpath(src, v[12:]),
-            jsonld=jsonld)
-        if v.startswith('@tabby-many-') and recursive
-        else v
+    if not recursive or not v.startswith('@tabby-'):
+        return v
+
+    if v.startswith('@tabby-single-'):
+        loader = _load_tabby_single
+        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[14:])
+    elif v.startswith('@tabby-many-'):
+        loader = _load_tabby_many
+        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[12:])
+    else:
+        # strange, but not enough reason to fail
+        return v
+
+    return loader(
+        src=src,
+        jsonld=jsonld,
+        recursive=recursive,
     )
 
 
@@ -176,7 +181,7 @@ def _load_tabby_many(
     *,
     src: Path,
     jsonld: bool,
-    recursive: bool = True,
+    recursive: bool,
 ) -> List[Dict]:
     array = list()
     fieldnames = None
