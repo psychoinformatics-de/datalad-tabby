@@ -44,3 +44,23 @@ def test_load_nonrecursive(tabby_tsv_record, datalad_noninteractive_ui):
         tabby_tsv_record['root_sheet'],
         recursive=False,
         jsonld=False)
+
+
+def test_load_compaction(tabby_tsv_record):
+    rec = tabby_load(tabby_tsv_record['root_sheet'], mode='jsonld')[0]['tabby']
+    # we have a redundant context spec in each funding record
+    assert all('@context' in r for r in rec['funding'])
+
+    compaction = {
+        "schema": "https://schema.org",
+    }
+    # but compaction takes it out, when we define all relevant IRIs
+    # in a global compaction context
+    rec = tabby_load(
+        tabby_tsv_record['root_sheet'],
+        mode='jsonld',
+        compact=compaction,
+    )[0]['tabby']
+    # we have a redundant context spec in each funding record
+    assert not any('@context' in r for r in rec['schema:funding'])
+    assert rec['@context'] ==  compaction

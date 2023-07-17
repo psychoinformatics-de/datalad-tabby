@@ -4,12 +4,20 @@ __docformat__ = 'restructuredtext'
 
 import json
 import logging
+from pathlib import Path
+from typing import Dict
 
 import datalad_next.commands as dc
 from datalad_next.constraints import (
     EnsureChoice,
+    EnsureJSON,
     EnsurePath,
 )
+from datalad_next.constraints.basic import (
+    EnsureDType,
+)
+from datalad_next.constraints.exceptions import ParameterConstraintContext
+
 from datalad_next.uis import ui_switcher as ui
 
 from datalad_tabby.io import load_tabby
@@ -17,14 +25,30 @@ from datalad_tabby.io import load_tabby
 lgr = logging.getLogger('datalad.tabby.load')
 
 
+load_modes = ('jsonld', 'json', 'single')
+
+
 class _ParamValidator(dc.EnsureCommandParameterization):
     def __init__(self):
         super().__init__(
             param_constraints=dict(
                 path=EnsurePath(lexists=True),
-                mode=EnsureChoice('jsonld', 'json', 'single')
+                mode=EnsureChoice(*load_modes),
+                compact=EnsureJSON() | EnsurePath() | EnsureDType(dict),
             ),
+            joint_constraints={
+                ParameterConstraintContext(
+                    ('mode', 'compact'), 'mode requirement'):
+                        self._check_compaction_jsonld_mode,
+            },
         )
+
+    def _check_compaction_jsonld_mode(self, mode, compact):
+        if compact and mode != 'jsonld':
+            self.raise_for(
+                dict(mode=mode, compact=compact),
+                "JSON-LD compaction requires mode 'jsonld'"
+            )
 
 
 @dc.build_doc
@@ -41,6 +65,13 @@ class Load(dc.ValidatedInterface):
         mode=dc.Parameter(
             args=("--mode",),
             doc="""The mode with which to load a tabby record.""",
+            choices=load_modes,
+        ),
+        compact=dc.Parameter(
+            args=('--compact',),
+            metavar='CONTEXT',
+            doc="""A context for JSON-LD compaction of the loaded record
+            (requires mode 'jsonld').""",
         ),
     )
 
@@ -49,14 +80,20 @@ class Load(dc.ValidatedInterface):
     def __call__(
         path,
         mode: str = 'jsonld',
+        compact: None | Path | Dict = None,
     ):
         rec = load_tabby(
             path,
-            # TODO expose as parameter
             single=True,
             jsonld=mode == 'jsonld',
             recursive=mode != 'single'
         )
+
+        if compact:
+            from pyld import jsonld
+            if isinstance(compact, Path):
+                compact = json.load(compact.open())
+            rec = jsonld.compact(rec, compact)
 
         yield dc.get_status_dict(
             action='tabby_load',

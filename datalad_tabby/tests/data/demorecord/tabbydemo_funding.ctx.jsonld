@@ -1,4 +1,5 @@
 {
-    "funder": "https://schema.org/funder",
-    "identifier": "https://schema.org/identifier"
+  "schema": "https://schema.org",
+  "funder": "schema:funder",
+  "identifier": "schema:identifier"
 }

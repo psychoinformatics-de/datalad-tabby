@@ -1,4 +1,5 @@
 {
   "schema": "https://schema.org",
-  "name": "schema:name"
+  "name": "schema:name",
+  "funding": "schema:funding"
 }
