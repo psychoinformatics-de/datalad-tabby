@@ -11,9 +11,11 @@ from typing import Dict
 
 import datalad_next.commands as dc
 from datalad_next.constraints import (
+    AnyOf,
     EnsureChoice,
     EnsureJSON,
     EnsurePath,
+    EnsureValue,
 )
 from datalad_next.constraints.basic import (
     EnsureDType,
@@ -36,7 +38,12 @@ class _ParamValidator(dc.EnsureCommandParameterization):
             param_constraints=dict(
                 path=EnsurePath(lexists=True),
                 mode=EnsureChoice(*load_modes),
-                compact=EnsureJSON() | EnsurePath() | EnsureDType(dict),
+                compact=AnyOf(
+                    EnsureValue('@context'),
+                    EnsureJSON(),
+                    EnsurePath(),
+                    EnsureDType(dict),
+                ),
             ),
             joint_constraints={
                 ParameterConstraintContext(
@@ -93,7 +100,9 @@ class Load(dc.ValidatedInterface):
 
         if compact:
             from pyld import jsonld
-            if isinstance(compact, Path):
+            if compact == '@context':
+                compact = rec.get('@context', {})
+            elif isinstance(compact, Path):
                 compact = json.load(compact.open())
             rec = jsonld.compact(rec, compact)
 
