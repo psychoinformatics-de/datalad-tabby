@@ -1,5 +1,8 @@
 {
-  "author": "schema:author",
+  "author": {
+    "@id": "schema:author",
+    "@container":"@list"
+  },
   "funding": "schema:funding",
   "name": "schema:name",
   "publication": "schema:publication"
