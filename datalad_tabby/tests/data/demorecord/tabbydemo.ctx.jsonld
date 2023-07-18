@@ -1,5 +1,6 @@
 {
   "bibo": "https://purl.org/ontology/bibo/",
+  "dpv": "https://w3id.org/dpv#",
   "obo": "https://purl.obolibrary.org/",
   "schema": "https://schema.org"
 }
