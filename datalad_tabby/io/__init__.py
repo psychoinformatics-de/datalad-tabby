@@ -119,13 +119,15 @@ def _load_tabby_single(
 
 
 def _get_corresponding_context(src):
-    ctx_fpath = _get_corresponding_context_fpath(src)
+    rec_ctx_fpath = _get_record_context_fpath(src)
+    sheet_ctx_fpath = _get_corresponding_context_fpath(src)
     # TODO take built-in context instead of empty
     ctx = {}
-    if ctx_fpath.exists():
-        custom_ctx = json.load(ctx_fpath.open())
-        # TODO report when redefinitions occur
-        ctx.update(custom_ctx)
+    for ctx_fpath in (rec_ctx_fpath, sheet_ctx_fpath):
+        if ctx_fpath.exists():
+            custom_ctx = json.load(ctx_fpath.open())
+            # TODO report when redefinitions occur
+            ctx.update(custom_ctx)
 
     return ctx
 
@@ -192,6 +194,11 @@ def _build_overrides(src: Path, obj: Dict):
 def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
     return fpath.parent / \
         f'{_get_tabby_prefix_from_sheet_fpath(fpath)}_{sheet_name}.tsv'
+
+
+def _get_record_context_fpath(fpath: Path) -> Path:
+    prefix = _get_tabby_prefix_from_sheet_fpath(fpath)
+    return fpath.parent / f'{prefix}.ctx.jsonld'
 
 
 def _get_corresponding_context_fpath(fpath: Path) -> Path:

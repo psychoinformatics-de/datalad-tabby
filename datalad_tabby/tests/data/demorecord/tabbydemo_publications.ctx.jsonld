@@ -1,7 +1,5 @@
 {
   "type": {"@id": "@type"},
-  "bibo": "https://purl.org/ontology/bibo/",
-  "schema": "https://schema.org",
   "citation": "schema:citation",
   "date": "schema:Date",
   "doi": "bibo:doi"
