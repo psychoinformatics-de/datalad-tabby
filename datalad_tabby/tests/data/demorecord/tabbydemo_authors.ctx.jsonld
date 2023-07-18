@@ -1,6 +1,4 @@
 {
-  "obo": "https://purl.obolibrary.org/",
-  "schema": "https://schema.org",
   "email": "schema:email",
   "name": "schema:name",
   "orcid": "obo:IAO_0000708"
