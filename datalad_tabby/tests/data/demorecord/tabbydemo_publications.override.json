@@ -1,3 +1,4 @@
 {
-  "@id": "https://dx.doi.org/{doi[0]}"
+  "@id": "https://dx.doi.org/{doi[0]}",
+  "type": "schema:{type[0]}"
 }
