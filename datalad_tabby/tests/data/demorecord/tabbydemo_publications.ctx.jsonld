@@ -1,5 +1,5 @@
 {
-  "type": {"@id": "@type"},
+  "type": "@type",
   "citation": "schema:citation",
   "date": "schema:Date",
   "doi": "bibo:doi"
