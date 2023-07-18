@@ -327,7 +327,11 @@ def _manyrow2obj(
 def _compact_obj(obj: Dict) -> Dict:
     # simplify single-item lists to a plain value
     return {
-        k: vals if len(vals) > 1 else vals[0]
+        k:
+        # we let any @context pass-through as-is to avoid ANY sideeffects
+        # of fiddling with the complex semantics of context declaration
+        # structure
+        vals if k == '@context' else vals if len(vals) > 1 else vals[0]
         for k, vals in obj.items()
     }
 

@@ -1,5 +1,7 @@
 {
   "schema": "https://schema.org",
+  "author": "schema:author",
+  "funding": "schema:funding",
   "name": "schema:name",
-  "funding": "schema:funding"
+  "publication": "schema:publication"
 }
