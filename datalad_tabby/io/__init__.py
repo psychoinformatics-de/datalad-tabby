@@ -133,7 +133,9 @@ def _get_corresponding_context(src):
 def _assigned_context(obj: Dict, ctx: Dict):
     if '@context' in obj:
         # TODO report when redefinitions occur
-        obj['@context'].update(ctx)
+        # TODO in principle a table could declare a context, but this is
+        # a theoretical possibility that is neither advertised nor tested
+        obj['@context'].update(ctx)  # pragma: no cover
     else:
         obj['@context'] = ctx
 
