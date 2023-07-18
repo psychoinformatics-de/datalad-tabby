@@ -1,5 +1,7 @@
 """Load a tabby metadata record"""
 
+from __future__ import annotations
+
 __docformat__ = 'restructuredtext'
 
 import json
