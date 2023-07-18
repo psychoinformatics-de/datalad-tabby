@@ -105,8 +105,39 @@ def _load_tabby_single(
     obj.update(_build_overrides(src, obj))
 
     obj = _compact_obj(obj)
-    # TODO with jsonld==True, looks for a context, look for a frame
+
+    if not jsonld:
+        # early exit
+        return obj
+
+    # with jsonld==True, looks for a context
+    ctx = _get_corresponding_context(src)
+    if ctx:
+        _assigned_context(obj, ctx)
+
     return obj
+
+
+def _get_corresponding_context(src):
+    ctx_fpath = _get_corresponding_context_fpath(src)
+    # TODO take built-in context instead of empty
+    ctx = {}
+    if ctx_fpath.exists():
+        custom_ctx = json.load(ctx_fpath.open())
+        # TODO report when redefinitions occur
+        ctx.update(custom_ctx)
+
+    return ctx
+
+
+def _assigned_context(obj: Dict, ctx: Dict):
+    if '@context' in obj:
+        # TODO report when redefinitions occur
+        # TODO in principle a table could declare a context, but this is
+        # a theoretical possibility that is neither advertised nor tested
+        obj['@context'].update(ctx)  # pragma: no cover
+    else:
+        obj['@context'] = ctx
 
 
 def _resolve_value(
@@ -163,10 +194,10 @@ def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
         f'{_get_tabby_prefix_from_sheet_fpath(fpath)}_{sheet_name}.tsv'
 
 
-#def _get_corresponding_context_fpath(fpath: Path) -> Path:
-#    return fpath.parent / f'{fpath.stem}.ctx.jsonld'
-#
-#
+def _get_corresponding_context_fpath(fpath: Path) -> Path:
+    return fpath.parent / f'{fpath.stem}.ctx.jsonld'
+
+
 #def _get_corresponding_frame_fpath(fpath: Path) -> Path:
 #    return fpath.parent / f'{fpath.stem}.frame.jsonld'
 
@@ -208,6 +239,10 @@ def _load_tabby_many(
 ) -> List[Dict]:
     array = list()
     fieldnames = None
+
+    # with jsonld==True, looks for a context
+    ctx = _get_corresponding_context(src)
+
     with src.open(newline='') as tsvfile:
         # we cannot use DictReader -- we need to support identically named
         # columns
@@ -229,6 +264,9 @@ def _load_tabby_many(
                 continue
 
             obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
+
+            if ctx:
+                _assigned_context(obj, ctx)
 
             # simplify single-item lists to a plain value
             array.append(_compact_obj(obj))

@@ -1,0 +1,5 @@
+{
+  "schema": "https://schema.org",
+  "funder": "schema:funder",
+  "identifier": "schema:identifier"
+}
