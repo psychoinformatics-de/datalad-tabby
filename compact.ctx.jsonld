@@ -1,0 +1,16 @@
+{
+  "bibo": "https://purl.org/ontology/bibo/",
+  "obo": "https://purl.obolibrary.org/",
+  "schema": "https://schema.org",
+  "author": "schema:author",
+  "citation": "schema:citation",
+  "date": "schema:Date",
+  "doi": "bibo:doi",
+  "email": "schema:email",
+  "funder": "schema:funder",
+  "funding": "schema:funding",
+  "identifier": "schema:identifier",
+  "name": "schema:name",
+  "orcid": "obo:IAO_0000708",
+  "publication": "schema:publication"
+}
