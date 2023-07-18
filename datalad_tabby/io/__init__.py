@@ -181,13 +181,21 @@ def _build_overrides(src: Path, obj: Dict):
     orspec = json.load(ofpath.open())
     for k in orspec:
         spec = orspec[k]
-        s = [
+        ov = []
+        for s in (spec if isinstance(spec, list) else [spec]):
             # interpolate str spec, anything else can pass
             # through as-is
-            s.format(**obj) if isinstance(s, str) else s
-            for s in (spec if isinstance(spec, list) else [spec])
-        ]
-        overrides[k] = s
+            if not isinstance(s, str):
+                s.append(s)
+                continue
+            try:
+                o = s.format(**obj)
+            except KeyError:
+                # we do not have what this override spec need, skip it
+                # TODO log this
+                continue
+            ov.append(o)
+        overrides[k] = ov
     return overrides
 
 
@@ -340,6 +348,8 @@ def _compact_obj(obj: Dict) -> Dict:
         # structure
         vals if k == '@context' else vals if len(vals) > 1 else vals[0]
         for k, vals in obj.items()
+        # skip empty containers entirely
+        if not (isinstance(vals, (dict, list)) and not vals)
     }
 
 
