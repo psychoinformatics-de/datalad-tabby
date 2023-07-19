@@ -41,6 +41,66 @@ This approach is particularly useful for declaring a standard set of IRI
 prefixes for standard ontologies/vocabularies.
 
 
+Declare the type of a metadata entity
+=====================================
+
+A `tabby` record comprises any number of nested/linked metadata objects (in the
+form of JSON-objects). For semantically precise metadata, each of these objects
+should declare a ``@type`` property to identify its nature (or `class` in RDF
+terms). However, from a `tabby` user perspective this can often seem redundant
+and tedious to specify manually. For example, for a human it may seem superfluous
+to label each item in a ``funding`` table with a type that is always ``Grant``.
+
+Recommendation
+--------------
+
+Conceptualize `tabby` tables to describe metadata entities of the same type,
+and insert the ``@type`` definition as an override. For example, if a
+``<prefix>_authors.tsv`` table only lists people (as opposed to also
+organizations), the following override in ``<prefix>_authors.override.json``
+would be suitable for an automatic type-declaration:
+
+.. code-block:: json
+
+   {
+     "@type": "schema:Person"
+   }
+
+If type-homogeneity within a table cannot be achieved, use a dedicated ``type``
+property and document a controlled vocabulary for users. An override can amend
+a user-provided type-label to turn it into a defined term. For example, a list
+of publications may comprise different types of published items. Using the
+schema.org terms (like ``ScholarlyArticle``) is an option for identifying the
+types. The following override in ``<prefix>_publications.override.json``
+defines this approach. The user-provided label is explicitly prefixed to
+yield a defined term:
+
+.. code-block:: json
+
+   {
+     "type": "schema:{type[0]}"
+   }
+
+This ``type`` property can also be declared to serve as the JSON-LD node type
+specification, by declaring the following in
+``<prefix>_publications.ctx.jsonld``:
+
+.. code-block:: json
+
+   {
+     "type": "@type",
+   }
+
+Leading to a corresponding entity to be reported as:
+
+.. code-block:: json
+
+   "publication": {
+     "@type": "schema:ScholarlyArticle"
+     //...
+   }
+
+
 Declare an ordered list of entities (e.g., author list)
 =======================================================
 
