@@ -121,10 +121,19 @@ def tabby_record_w_overrides(tmp_path_factory):
         '@id': 'myid-{k1[0]}',
         # amend key
         'k2': ['{k2[0]}', '{k2[1]}', 'dwa'],
+        # non-string value that should pass through
+        'nonstr': 5,
     }))
     many_t = [
-        {'@id': 'myid-1', 'k1': '1', 'k2': ['2', 'zwei', 'dwa'], 'k3': '3'},
-        {'@id': 'myid-a', 'k1': 'a', 'k2': ['b', 'b', 'dwa'], 'k3': 'c'},
+        {'@id': 'myid-1',
+         'k1': '1',
+         'k2': ['2', 'zwei', 'dwa'], 'k3': '3',
+         'nonstr': 5},
+        {'@id': 'myid-a',
+         'k1': 'a',
+         'k2': ['b', 'b', 'dwa'],
+         'k3': 'c',
+         'nonstr': 5},
     ]
     root = rdir / 'rec_root.tsv'
     root.write_text(

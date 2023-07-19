@@ -186,7 +186,7 @@ def _build_overrides(src: Path, obj: Dict):
             # interpolate str spec, anything else can pass
             # through as-is
             if not isinstance(s, str):
-                s.append(s)
+                ov.append(s)
                 continue
             try:
                 o = s.format(**obj)
