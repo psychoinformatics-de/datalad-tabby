@@ -10,6 +10,32 @@ facilitate adoption. Contributions to extend or improve this collection are
 most welcome.
 
 
+Declare an ordered list of entities (e.g., author list)
+=======================================================
+
+``many``-format tables represent a JSON-array of objects with an intrinsic
+order. However, in the context of JSON-LD `multiple array values SHOULD be
+presumed to be unordered
+<https://w3c.github.io/json-ld-bp/#unordered-values>`__. If the order of items
+in a ``many`` table is significant, this requires a dedicated annotation.
+
+Recommendation
+--------------
+
+Declare the property that links the ordered list of entities to be
+a ``"@container": "@list"`` in the respective context. For an ordered
+author list, for example, declare:
+
+.. code-block:: json
+
+   "author": {
+      "@id": "...",
+      "@container":"@list"
+   }
+
+in the context of the ``dataset`` table.
+
+
 Declare an entity to be the *controller* of a dataset (GDPR)
 ============================================================
 
