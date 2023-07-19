@@ -10,6 +10,37 @@ facilitate adoption. Contributions to extend or improve this collection are
 most welcome.
 
 
+Context declaration: precision vs. boilerplate
+==============================================
+
+The `tabby` format supports a dedicated context specification for each table.
+However, a full context declaration per each table would lead to needlessly
+verbose records.
+
+Recommendation
+--------------
+
+When a single context is sufficient for a `tabby` record, it can be declared
+as the context of the root table in ``<prefix>_dataset.ctx.jsonld``. The context
+in this file is inserted into the `tabby` record at the root level, hence
+covers the entire document, including content inserted from other tables.
+
+When individual tables require a different context specification, it can be
+declared in the respective ``<prefix>_<table-name>.ctx.jsonld`` side-car files.
+Such a context is inserted in each metadata object read from the respective
+table. Standard JSON-LD rules for context scoping and propgation apply to the
+semantics of such a declaration.
+
+A third approach to context specification is a record-global
+``<prefix>.ctx.jsonld`` file. If such a file exists, its content will be used
+as the default context for any metadata object read from any table of the
+`tabby` record, and is inserted as value of its ``@context`` key. Content from
+a table-specific ``<prefix>_<table-name>.ctx.jsonld`` side car file will
+amend/overwrite individual keys of this default context on a per-table basis.
+This approach is particularly useful for declaring a standard set of IRI
+prefixes for standard ontologies/vocabularies.
+
+
 Declare an ordered list of entities (e.g., author list)
 =======================================================
 
