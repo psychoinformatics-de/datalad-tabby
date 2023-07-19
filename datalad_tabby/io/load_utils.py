@@ -62,13 +62,19 @@ def _build_overrides(src: Path, obj: Dict):
 
 
 def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
-    return fpath.parent / \
-        f'{_get_tabby_prefix_from_sheet_fpath(fpath)}_{sheet_name}.tsv'
+    prefix = _get_tabby_prefix_from_sheet_fpath(fpath)
+    if prefix:
+        return fpath.parent / f'{prefix}_{sheet_name}.tsv'
+    else:
+        return fpath.parent / f'{sheet_name}.tsv'
 
 
 def _get_record_context_fpath(fpath: Path) -> Path:
     prefix = _get_tabby_prefix_from_sheet_fpath(fpath)
-    return fpath.parent / f'{prefix}.ctx.jsonld'
+    if prefix:
+        return fpath.parent / f'{prefix}.ctx.jsonld'
+    else:
+        return fpath.parent / f'ctx.jsonld'
 
 
 def _get_corresponding_context_fpath(fpath: Path) -> Path:
@@ -85,8 +91,11 @@ def _get_corresponding_override_fpath(fpath: Path) -> Path:
 
 def _get_tabby_prefix_from_sheet_fpath(fpath: Path) -> str:
     stem = fpath.stem
-    # stem up to, but not including, the last '_'
-    return stem[:(-1) * stem[::-1].index('_') - 1]
+    if '_' not in stem:
+        return ''
+    else:
+        # stem up to, but not including, the last '_'
+        return stem[:(-1) * stem[::-1].index('_') - 1]
 
 
 def _get_index_after_last_nonempty(val: List) -> int:
