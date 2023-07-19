@@ -57,3 +57,9 @@ def test_load_almost_tabby_import(tmp_path):
 
     rec = load_tabby(src)
     assert rec['dummy'] == '@tabby-murks'
+
+
+def test_load_singldir_format(tabby_tsv_record, tabby_tsv_singledir_record):
+    rec = load_tabby(tabby_tsv_record['root_sheet'])
+    srec = load_tabby(tabby_tsv_singledir_record['root_sheet'])
+    assert rec == srec

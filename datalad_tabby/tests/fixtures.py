@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import pytest
+from shutil import copyfile
 
 from datalad_next.tests.utils import md5sum
 
@@ -16,6 +17,36 @@ def tabby_tsv_record():
     assert root_sheet in sheets
     assert root_sheet.exists()
 
+    yield dict(
+        root_sheet=root_sheet,
+        sheets=sheets,
+        md5={s.name: md5sum(s) for s in sheets},
+    )
+
+
+@pytest.fixture(autouse=False, scope="session")
+def tabby_tsv_singledir_record(tmp_path_factory):
+    srcdir = Path(dttests.__file__).parent / 'data' / 'demorecord'
+    rfiles = list(srcdir.glob('tabbydemo*'))
+    rdir = tmp_path_factory.mktemp("demorecord_single") / 'tabbydemo'
+    rdir.mkdir()
+
+    # we copy all the files, windows does not play with symlinks in general
+    dst_files = [
+        # strip the prefix from the filename, clean `.ctx.jsonld`
+        rdir / ('ctx.jsonld'
+                if fpath.name == 'tabbydemo.ctx.jsonld'
+                else fpath.name.split('_')[-1].lstrip('.'))
+        for fpath in rfiles
+    ]
+    for s, d in zip(rfiles, dst_files):
+        copyfile(s, d)
+
+    root_sheet = rdir / 'dataset.tsv'
+    assert root_sheet in dst_files
+    assert root_sheet.exists()
+
+    sheets = [f for f in dst_files if f.name.endswith('.tsv')]
     yield dict(
         root_sheet=root_sheet,
         sheets=sheets,
