@@ -4,7 +4,7 @@ import pytest
 
 from datalad_next.tests.utils import md5sum
 
-from .. import (
+from ..xlsx import (
     xlsx2tabby,
     tabby2xlsx,
 )
