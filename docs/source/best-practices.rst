@@ -1,0 +1,57 @@
+Best practices
+**************
+
+While `tabby` provides a framework to implement near-arbitrary metadata
+records, often this flexibility is neither necessary nor actually beneficial.
+This section documents "best-practices" for annotating particular dataset
+properties. The depicted scenarios are nohow comprehensive, or "best" given any
+concrete measure. There are collected here to prevent needless variation, and
+facilitate adoption. Contributions to extend or improve this collection are
+most welcome.
+
+
+Declare an entity to be the *controller* of a dataset (GDPR)
+============================================================
+
+The concept of a `data controller` is a key element of the EU's General Data
+Protection Regulation (see
+https://www.gdpreu.org/the-regulation/key-concepts/data-controllers-and-processors).
+More generally, a data controller can be seen an the entity that is (legally)
+responsible for a dataset, and may serve as the main contact point regarding
+any inquires concerning a dataset.
+
+The `Data Privacy Vocabulary <https://w3c.github.io/dpv/dpv/>`__ provide a suitable
+vocabulary to express this.
+
+Recommendation
+--------------
+
+Define a ``dpv`` IRI-prefix in the JSON-LD context
+
+.. code-block:: json
+
+   {
+     "dpv": "https://w3id.org/dpv#"
+   }
+
+Add a ``data-controller`` table to the metadata record. This may be in ``single``,
+or ``many`` format, depending on the dataset. It should contain essential
+properties of the data controller entity, such as a name, an email, and possibly
+a (physical/postal) address.
+
+Declare the data controller entity type via an override declaration
+(``<prefix>_data-controller.override.json``):
+
+.. code-block:: json
+
+   {
+     "@type": "dpv:DataController"
+   }
+
+Link the ``data-controller`` table as a property in the ``dataset`` table
+(using the import statement that matches the chosen table format):
+
+.. list-table::
+
+   * - data-controller
+     - @tabby-many-data-controller

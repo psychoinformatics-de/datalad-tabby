@@ -25,6 +25,7 @@ or sources.
 
    specification.rst
    usage-examples.rst
+   best-practices.rst
 
 
 Command line reference
