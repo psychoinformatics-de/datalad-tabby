@@ -3,6 +3,7 @@
     "@id": "schema:author",
     "@container":"@list"
   },
+  "data-controller": "dpv:hasDataController",
   "funding": "schema:funding",
   "name": "schema:name",
   "publication": "schema:publication"
