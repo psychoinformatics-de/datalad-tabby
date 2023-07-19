@@ -55,6 +55,7 @@ Python tooling
    :toctree: generated
 
    io
+   io.xlsx
 
 
 Acknowledgements
