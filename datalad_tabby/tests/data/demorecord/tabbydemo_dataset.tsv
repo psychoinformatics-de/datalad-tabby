@@ -1,13 +1,13 @@
 identifier	CRC1451-INF-palmer-penguins-demo-dataset
-name	Palmer Penguins
+name	penguins
+title	Palmer Penguins
 description	The goal of palmerpenguins is to provide a great dataset for data exploration and visualization, as an alternative to iris. Data were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network.
 version	0.1.0
 keywords	penguins	sea ice	foraging	ecological niches	islands	antarctica	animal sexual behavior	isotopes
 license	CC0
 doi	https://doi.org/10.5281/zenodo.3960218
 last-updated	2020-07-16 00:00:00
-access-url	https://github.com/allisonhorst/palmerpenguins
-contact	Allison Horst <ahorst@ucsb.edu>
+homepage	https://github.com/allisonhorst/palmerpenguins
 
 # examples of common CRC1451 metadata to further the goal of a homogeneously curated dataset collection	
 project[code]	INF

@@ -4,7 +4,15 @@
     "@container":"@list"
   },
   "data-controller": "dpv:hasDataController",
+  "description": "schema:description",
+  "doi": "bibo:doi",
   "funding": "schema:funding",
+  "homepage": "schema:mainEntityOfPage",
+  "keywords": "schema:keywords",
+  "last-updated": "schema:dateModified",
+  "license": "schema:license",
   "name": "schema:name",
-  "publication": "schema:publication"
+  "publication": "schema:publication",
+  "title": "schema:title",
+  "version": "schema:version"
 }
