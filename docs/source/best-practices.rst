@@ -5,8 +5,8 @@ While `tabby` provides a framework to implement near-arbitrary metadata
 records, often this flexibility is neither necessary nor actually beneficial.
 This section documents "best-practices" for annotating particular dataset
 properties. The depicted scenarios are nohow comprehensive, or "best" given any
-concrete measure. There are collected here to prevent needless variation, and
-facilitate adoption. Contributions to extend or improve this collection are
+concrete measure. They are collected here to prevent needless variation, and
+to facilitate adoption. Contributions to extend or improve this collection are
 most welcome.
 
 
@@ -34,8 +34,8 @@ semantics of such a declaration.
 A third approach to context specification is a record-global
 ``<prefix>.ctx.jsonld`` file. If such a file exists, its content will be used
 as the default context for any metadata object read from any table of the
-`tabby` record, and is inserted as value of its ``@context`` key. Content from
-a table-specific ``<prefix>_<table-name>.ctx.jsonld`` side car file will
+`tabby` record, and is inserted as the value of its ``@context`` key. Content
+from a table-specific ``<prefix>_<table-name>.ctx.jsonld`` side car file will
 amend/overwrite individual keys of this default context on a per-table basis.
 This approach is particularly useful for declaring a standard set of IRI
 prefixes for standard ontologies/vocabularies.
