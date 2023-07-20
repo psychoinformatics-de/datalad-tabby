@@ -1,6 +1,16 @@
+import pytest
 from datalad.api import meta_extract
 
-from ..extractor import TabbyExtractor
+from datalad_next.datasets import (
+    Dataset,
+    LegacyGitRepo,
+)
+from datalad_next.exceptions import NoDatasetFound
+
+from ..extractor import (
+    TabbyExtractor,
+    isVersionOf,
+)
 
 
 def test_extractor_version():
@@ -21,14 +31,36 @@ def test_extractor_minimal(existing_dataset):
     ds = existing_dataset
     mfpath = ds.pathobj / '.datalad' / 'tabby' / 'self' / 'dataset.tsv'
     mfpath.parent.mkdir(parents=True)
-    mfpath.write_text('title\tmy dataset\n')
+    # load with unrelated isVersionOf, to force the extractor to
+    # amend, rather than override the existing info
+    mfpath.write_text(f'title\tmy dataset\n{isVersionOf}\tsomething\n')
     res = meta_extract(
         'tabby', dataset=ds, return_type='item-or-list',
         result_renderer='disabled',
     )
     assert res['status'] == 'ok'
     meta = res['metadata_record']['extracted_metadata']
-    assert meta == {'title': 'my dataset'}
+    assert meta['title'] == 'my dataset'
+    assert len(meta[isVersionOf]) == 2
+    assert meta[isVersionOf][0] == 'something'
+    assert meta[isVersionOf][1]['@id']
+
+
+def test_extractor_minimal_nods(tmp_path):
+    # we run on a plain git repo
+    repo = LegacyGitRepo(tmp_path)
+    repo.call_git(['init'])
+    mfpath = repo.pathobj / '.datalad' / 'tabby' / 'self' / 'dataset.tsv'
+    mfpath.parent.mkdir(parents=True)
+    mfpath.write_text(f'title\tmy dataset\n')
+    repo.call_git(['add', '.'])
+    repo.call_git(['commit', '-m', 'minimal metadata'])
+    ds = Dataset(repo.pathobj)
+    with pytest.raises(NoDatasetFound):
+        meta_extract(
+            'tabby', dataset=ds, return_type='item-or-list',
+            result_renderer='disabled',
+        )
 
 
 def test_extractor_invalidmeta(existing_dataset):
