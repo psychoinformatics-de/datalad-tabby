@@ -1,6 +1,6 @@
 from datalad.conftest import setup_package
 
-from datalad_next.tests.fixtures import datalad_noninteractive_ui
+pytest_plugins = "datalad_next.tests.fixtures"
 
 from datalad_tabby.tests.fixtures import (
     # provides the tabby "demorecord" that is shipped with the sources
