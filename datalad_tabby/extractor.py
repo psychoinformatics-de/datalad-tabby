@@ -32,6 +32,23 @@ def load_dataset_self_description(ds: Dataset) -> Dict:
     return dsmeta
 
 
+def yield_dscollection_records(ds: Dataset):
+    dscolpath = ds.pathobj / '.datalad' / 'tabby' / 'dscollection'
+    if not dscolpath.exists():
+        return
+    for rpath in dscolpath.glob('*_dataset.tsv'):
+        try:
+            yield load_tabby(
+                rpath,
+                single=True,
+                jsonld=True,
+                recursive=True,
+            )
+        except Exception:
+            # TODO log
+            pass
+
+
 # key terms, we use ful URLs to avoid having to fiddle with context
 # prefixes and possibly conflicting definitions
 isVersionOf = 'https://purl.org/dc/terms/isVersionOf'
@@ -64,24 +81,53 @@ class TabbyExtractor(DatasetMetadataExtractor):
         return True
 
     def extract(self, _=None) -> ExtractorResult:
-        dsmeta = {}
+        rootdsmeta = {}
         extraction_success = False
         try:
-            dsmeta = load_dataset_self_description(self.dataset)
+            rootdsmeta = load_dataset_self_description(self.dataset)
             extraction_success = True
             res = get_status_dict(status='ok')
         except LookupError:
             res = get_status_dict(status='impossible')
             # TODO https://github.com/datalad/datalad-metalad/issues/385
         except Exception as e:
-            res = get_status_dict(
-                status='error',
-                exception=CapturedException(e),
+            return ExtractorResult(
+                extractor_version=self.get_version(),
+                extraction_parameter=self.parameter or {},
+                extraction_success=extraction_success,
+                datalad_result_dict=get_status_dict(
+                    status='error',
+                    exception=CapturedException(e),
+                    type='dataset',
+                ),
+                immediate_data={},
             )
 
-        self._amend_tabby(dsmeta)
-
+        self._amend_tabby(rootdsmeta)
         res['type'] = 'dataset'
+
+        dsmeta = []
+        if rootdsmeta:
+            dsmeta.append(rootdsmeta)
+
+        for crec in yield_dscollection_records(self.dataset):
+            # good enough if we get something here, even when there was
+            # no root record
+            res['status'] = 'ok'
+            extraction_success = True
+            if not crec:
+                # no point in reporting empty records
+                continue
+            dsmeta.append(crec)
+
+        if len(dsmeta) > 1:
+            dsmeta = {
+                # https://github.com/datalad/datalad-metalad/issues/391
+                '@graph': dsmeta,
+            }
+        else:
+            # compact, we only have a single (root) record
+            dsmeta = dsmeta[0]
 
         return ExtractorResult(
             extractor_version=self.get_version(),

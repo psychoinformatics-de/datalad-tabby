@@ -34,6 +34,7 @@ def test_extractor_minimal(existing_dataset):
     # load with unrelated isVersionOf, to force the extractor to
     # amend, rather than override the existing info
     mfpath.write_text(f'title\tmy dataset\n{isVersionOf}\tsomething\n')
+    ds.save(result_renderer='disabled')
     res = meta_extract(
         'tabby', dataset=ds, return_type='item-or-list',
         result_renderer='disabled',
@@ -75,3 +76,32 @@ def test_extractor_invalidmeta(existing_dataset):
     )
     assert res['status'] == 'error'
     assert 'no such file' in res['error_message'].lower()
+
+
+def test_extractor_collection_only(existing_dataset):
+    ds = existing_dataset
+    mfpath = ds.pathobj / '.datalad' / 'tabby' / 'dscollection' / \
+        'something_dataset.tsv'
+    mfpath.parent.mkdir(parents=True)
+    # load with unrelated isVersionOf, to force the extractor to
+    # amend, rather than override the existing info
+    mfpath.write_text('title\tcolds1\n')
+    # write a second, broken one
+    (mfpath.parent / 'broken_dataset.tsv'
+     ).write_text('arrgh\t@tabby-single-missing\n')
+    # write a third, empty one
+    (mfpath.parent / 'empty_dataset.tsv').write_text('\t\t\n')
+    ds.save(result_renderer='disabled')
+    res = meta_extract(
+        'tabby', dataset=ds, return_type='item-or-list',
+        result_renderer='disabled',
+    )
+    assert res['status'] == 'ok'
+    meta = res['metadata_record']['extracted_metadata']
+    assert '@graph' in meta
+    recs = meta['@graph']
+    # we still get info on the rootds, but only IDs for linkage
+    assert len(recs) == 2
+    assert recs[0][isVersionOf]['@id']
+    # collection records are relayed as-is
+    assert recs[1] == {'title': 'colds1'}
