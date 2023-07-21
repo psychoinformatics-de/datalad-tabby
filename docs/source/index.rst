@@ -75,9 +75,3 @@ Indices and tables
 * :ref:`search`
 
 .. |---| unicode:: U+02014 .. em dash
-
-
-.. toctree::
-   :hidden:
-
-   tabby-spec
