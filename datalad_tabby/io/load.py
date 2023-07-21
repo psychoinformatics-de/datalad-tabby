@@ -86,6 +86,17 @@ def _load_tabby_single(
             # supporting two ways just adds unnecessary complexity
             obj[key] = val
 
+    return _postproc_tabby_obj(
+        obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+
+
+def _postproc_tabby_obj(
+    obj: Dict,
+    src: Path,
+    jsonld: bool,
+    recursive: bool,
+    trace: List,
+):
     # look for @tabby-... imports in values, and act on them
     obj = {
         key:
