@@ -149,6 +149,10 @@ def _load_tabby_many(
 
             obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
 
+            # TODO optimize and not read spec from file for each row
+            # apply any overrides
+            obj.update(_build_overrides(src, obj))
+
             if ctx:
                 _assigned_context(obj, ctx)
 
@@ -232,7 +236,4 @@ def _manyrow2obj(
         k_vals.append(v)
         obj[k] = k_vals
 
-    # TODO optimize and not read spec from file for each row
-    # apply any overrides
-    obj.update(_build_overrides(src, obj))
     return obj
