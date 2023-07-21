@@ -80,23 +80,27 @@ def _load_tabby_single(
             if not val:
                 # skip properties with no value(s)
                 continue
-            # look for @tabby-... imports in values, and act on them
-            val = [
-                _resolve_value(
-                    v,
-                    src,
-                    jsonld=jsonld,
-                    recursive=recursive,
-                    trace=trace,
-                )
-                for v in val
-            ]
             # we do not amend values for keys!
             # another row for an already existing key overwrites
             # we support "sequence" values via multi-column values
             # supporting two ways just adds unnecessary complexity
             obj[key] = val
 
+    # look for @tabby-... imports in values, and act on them
+    obj = {
+        key:
+        [
+            _resolve_value(
+                v,
+                src,
+                jsonld=jsonld,
+                recursive=recursive,
+                trace=trace,
+            )
+            for v in val
+        ]
+        for key, val in obj.items()
+    }
     # apply any overrides
     obj.update(_build_overrides(src, obj))
 
