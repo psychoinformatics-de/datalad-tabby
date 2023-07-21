@@ -1,47 +1,80 @@
 The `tabby` format
 ******************
 
-The scope of `tabby` metadata is the description of a single version of a
-dataset: a collection of files, curated for a particular purpose.
+`tabby` is a metadata format that can be used to describe arbitrary things. It
+does not prescribe a specific terminology.
+
+A `tabby` metadata record comprises linked components stored in individual
+files that are assembled and interpreted to form a single JSON_ or JSON-LD_
+document.  The different types of components are:
+
+sheet
+  The main building block of a `tabby` record. A sheet contains key-value pairs
+  in a tabular format. See `Sheet types`_ for details.
+
+context
+  A record-global, or sheet-specific JSON-LD_ context that defines the
+  terminology and semantics of information in sheets. This is an optional
+  component. See `Defining context`_ for details.
+
+override
+  A JSON_-format specification of data transformations to be applied to the
+  information in sheets, when assembling them into a complete JSON(-LD)
+  document This is an optional component. See `Metadata enrichment
+  (overrides)`_ for details.
+
+
+
+
+File naming
+===========
 
 A `tabby` metadata record comprises one or more files that share a common,
-arbitrary file name prefix. In addition to this prefix, each file name contains
-the name of a (tabular) metadata component. More generally, the name of all files
-comprising a `tabby` metadata record follow the scheme::
+arbitrary name prefix. In addition to this prefix, each file path contains the
+name of a `sheet`. More generally, the name of all files comprising a `tabby`
+metadata record follow the scheme::
 
-    <dataset-id>_<component>.<extension>
+    <record-id>{_,/}<sheet-name>.<extension>
 
 where
 
-- ``<dataset-id>`` is a character string that is common to all files comprising
+- ``<record-id>`` is a character string that is common to all files comprising
   a single `tabby` metadata record. This ID is an arbitrary, case-sensitive
   string.
 
-  For cross-platform compatibility reasons it is *recommended* to limit
-  the identifier to ASCII values, and possibly alphanumeric characters.
+  For cross-platform compatibility reasons it is *recommended* to limit the
+  identifier to lower-case ASCII values, and possibly alphanumeric characters.
 
-- ``<component>`` is a unique name for a particular (tabular) component of a
-  metadata record. The name must be lower-case and only consist of the character
-  set ``[a-z0-9-]`` (letter, digits, and dash/hyphen).
+  The ``<record-id>`` is specified as a ``_``-delimited file name prefix.
+  Alternatively, the ``<record-id>`` can be identified via the name of the
+  parent directory. In this case, no `tabby` record file component in this
+  directory can include a ``_`` character in its file name, and only a single
+  `tabby` record can be represented in that directory.
 
-- ``<extension>`` uniquely identifies the nature of the information contained
-  in the file, such as ``tsv``, ``ctx.jsonld``, or ``override.json`` (see below
-  for details).
+- ``<sheet-name>`` is a unique name for a particular sheet component of a
+  ``tabby`` metadata record. The name must be lower-case and only consist of
+  the character set ``[@a-z0-9-]`` (``@``, letter, digits, and dash/hyphen).
+
+- ``<extension>`` uniquely identifies the nature of the record component:
+
+  - ``tsv`` for a `sheet`
+  - ``ctx.jsonld`` for a `context`
+  - ``override.json`` for an `override` specification
 
 
-Two table types
-===============
+Sheet types
+===========
 
-Tabular metadata is represented in plain-text, tab-separated-value (TSV) files.
+Tabular metadata is represented in plain-text, tab-separated-value (TSV_) files.
 `tabby` defines how this tabular information is converted to structured data
 that can be represented in formats like JSON.
 
-Two different table layouts are distinguished and are described below. The
+Two different sheet layouts are distinguished and are described below. The
 particular layout cannot necessarily be inferred from the file content.
-Instead, the specific semantic is declared when `Connecting tables`_.
+Instead, the specific semantic is declared when `Connecting sheets`_.
 
 No data type conversion of any kind is performed when reading data from
-tables. Any item is represented as a plain-text string.
+sheets. Any item is represented as a plain-text string.
 
 
 The ``single`` layout
@@ -94,7 +127,7 @@ assigning the only items directly as the value.
 Metadata record entry point (root)
 ==================================
 
-Each `tabby` metadata record comprises, at minimum, one tabular (TSV) component
+Each `tabby` metadata record comprises, at minimum, one `sheet`
 in ``single`` layout. A system using `tabby` records should establish a
 convention to identify this root record via a particular name, such as
 ``dataset``.
@@ -103,52 +136,54 @@ A minimal metadata record on a dataset about "penguins" can be represented in a
 single file, such as ``penguins_dataset.tsv``.
 
 
-Connecting tables
+Connecting sheets
 =================
 
-Information from metadata tables can be nested to create more complex data
-structures than what the two basic table layouts can represent individually.
+Information from individual `sheets` can be nested to create more complex data
+structures than what the two basic sheet layouts can represent individually.
 This is supported by two dedicated import statements:
 
-- ``@tabby-single-<tablename>``
-- ``@tabby-many-<tablename>``
+- ``@tabby-single-<sheetname>``
+- ``@tabby-many-<sheetname>``
 
-where ``<tablename>`` is the name of a `tabby` metadata record component, with
+where ``<sheetname>`` is the name of a `tabby` metadata record component, with
 which the corresponding file name can be constructed. For example, using
 ``@tabby-many-authors`` in the TSV file ``penguins_dataset.tsv``, links the
 information in the file ``penguins_authors.tsv`` located in the same directory.
 
 The difference between the ``@tabby-single-...`` and the ``@tabby-many-...``
-statements is how the linked tables are being interpreted, and correspond to
-the two basic table layouts.
+statements is how the linked sheets are being interpreted, and correspond to
+the two basic sheet layouts.
 
-These import statements can be used in any value field in any of the two table
+These import statements can be used in any value field in any of the two sheet
 layouts. This includes value list (array) items.
 
 
 Defining context
 ================
 
-.. todo::
-   This functionality is not fully implemented yet
-
-Typically, the tabular components of a `tabby` metadata record use simple terms
-like ``license`` for keys and equally simple values like ``1.5`` for values.
-While this simplicity is useful for assembling a metadata record (possibly
-manually), it is insufficient for yielding precise, machine-readable records
-with comprehensively defined semantics. For that, each and every term, like
+Typically, the `sheets` of a `tabby` metadata record use simple terms like
+``license`` for keys and equally simple values like ``1.5`` for values.  While
+this simplicity is useful for assembling a metadata record (possibly manually),
+it is insufficient for yielding precise, machine-readable records with
+comprehensively defined semantics. For that, each and every term, like
 ``license``, must have a proper definition, and quantitative values, like
 ``1.5``, must come with information on the underlying concepts and possibly
 associated units.
 
 Providing the necessary context is possible by amending a metadata record with
-JSON-LD ``@context`` records that can be supplied, for each tabular component
-separately, via side-car files. Such a side-car files share the file name of
-the annotated TSV file without the extension, and a ``.ctx.jsonld`` suffix.
-For example, a context for ``penguins_authors.tsv`` would be read from
+JSON-LD ``@context`` records that can be supplied, for each `sheet` separately,
+via side-car files. Such a side-car files share the file name of the annotated
+`sheet` without the extension, and a ``.ctx.jsonld`` suffix.  For example, a
+context for ``penguins_authors.tsv`` would be read from
 ``penguins_authors.ctx.jsonld`` in the same directory.
 
-The content of such a file must be a valid JSON-LD context.
+In addition, a `tabby` record may include a record-global context specification
+at ``<prefix>.ctx.jsonld`` or ``<prefix>/ctx.jsonld``. This defines a default
+context for any `sheet`. Sheet-specific context definitions amend/override this
+record-global default for a given `sheet`.
+
+The content of any context file must be a valid `JSON-LD context`_.
 
 .. _sec-override-specification:
 
@@ -157,14 +192,14 @@ Metadata enrichment (overrides)
 
 When the tabular components of a `tabby` metadata record are not detailed
 enough or precise enough, it is possible to enrich the record with additional
-information, without having to edit the TSV files. This is done via an
+information, without having to edit the `sheets`. This is done via an
 overrides specification in a JSON side-car file.
 
 The type of metadata enrichment described here is based on purely lexical
 operations that manipulate (string) values. For other types of metadata
-enrichment see `Defining context`_ or consider JSON-LD framing.
+enrichment see `Defining context`_ or consider `JSON-LD framing`_.
 
-The override side-car file has the file name of the annotated TSV file without
+The override side-car file has the file name of the annotated `sheet` without
 the extension, plus a ``.override.json`` suffix.  For example, overrides for
 ``penguins_authors.tsv`` would be read from ``penguins_authors.override.json``
 in the same directory.
@@ -176,19 +211,26 @@ these two types.
 
 Any string value is assumed to be a format-string, compliant with the `Python
 Format String Syntax`_, and will be interpolated using the key-value mapping
-for the respective object read from the TSV file.  Therefore the brace
-characters ``{}`` need to be quote in case a particular string is to be
-treated as a literal value.
+for the respective object read from `sheet`.  Therefore the brace characters
+``{}`` need to be quote in case a particular string is to be treated as a
+literal value.
 
 .. _Python Format String Syntax: https://docs.python.org/3/library/string.html#format-string-syntax
 
 The full override record is built before it is applied, at once, to the
-respective object read from a TSV file.
+respective object read from a `sheet`.
 
-When declaring an override for a ``many`` table, the override is applied
-individually to each object (row) defined in that table.
+When declaring an override for a ``many`` sheet, the override is applied
+individually to each object (row) defined in that sheet.
 
 For uniformity, any metadata value is represented as a multi-value list
 (array) at the point of interpolation override specifications. A single item
 value for the key ``name`` therefore has to be referenced as ``{name[0]}``, not
 just ``{name}``. See :ref:`sec-override-examples` for examples.
+
+
+.. _JSON: https://www.json.org
+.. _JSON-LD: https://www.w3.org/TR/json-ld11
+.. _JSON-LD framing: https://www.w3.org/TR/json-ld11-framing
+.. _JSON-LD context: https://www.w3.org/TR/json-ld11/#the-context
+.. _TSV: https://en.wikipedia.org/wiki/Tab-separated_values
