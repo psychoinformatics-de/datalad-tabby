@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 from typing import (
     Dict,
@@ -15,6 +16,7 @@ from .load_utils import (
     _build_import_trace,
     _build_overrides,
     _get_corresponding_context,
+    _get_corresponding_jsondata_fpath,
     _get_corresponding_sheet_fpath,
     _get_index_after_last_nonempty,
 )
@@ -62,7 +64,9 @@ def _load_tabby_single(
     recursive: bool,
     trace: List,
 ) -> Dict:
-    obj = {}
+    jfpath = _get_corresponding_jsondata_fpath(src)
+    obj = json.load(jfpath.open()) if jfpath.exists() else {}
+
     with src.open(newline='') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         # row_id is useful for error reporting
@@ -108,7 +112,7 @@ def _postproc_tabby_obj(
                 recursive=recursive,
                 trace=trace,
             )
-            for v in val
+            for v in (val if isinstance(val, list) else [val])
         ]
         for key, val in obj.items()
     }

@@ -69,6 +69,10 @@ def _get_corresponding_sheet_fpath(fpath: Path, sheet_name: str) -> Path:
         return fpath.parent / f'{sheet_name}.tsv'
 
 
+def _get_corresponding_jsondata_fpath(fpath: Path) -> Path:
+    return fpath.parent / f'{fpath.stem}.json'
+
+
 def _get_record_context_fpath(fpath: Path) -> Path:
     prefix = _get_tabby_prefix_from_sheet_fpath(fpath)
     if prefix:
