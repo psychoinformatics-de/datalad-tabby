@@ -132,3 +132,35 @@ def _compact_obj(obj: Dict) -> Dict:
         # skip empty containers entirely
         if not (isinstance(vals, (dict, list)) and not vals)
     }
+
+
+def _manyrow2obj(
+    vals: List,
+    fieldnames: List,
+) -> Dict:
+    # if we get here, this is a value row, representing an individual
+    # object
+    obj = {}
+    if len(vals) > len(fieldnames):
+        # we have extra values, merge then into the column
+        # corresponding to the last key
+        last_key_idx = len(fieldnames) - 1
+        lc_vals = vals[last_key_idx:]
+        lc_vals = lc_vals[:_get_index_after_last_nonempty(lc_vals)]
+        vals[last_key_idx] = lc_vals
+
+    # merge values with keys, amending duplicate keys as necessary
+    for i, k in enumerate(fieldnames):
+        if i >= len(vals):
+            # no more values defined in this row, skip this key
+            continue
+        v = vals[i]
+        if not v:
+            # no value, nothing to store or append
+            continue
+        # treat any key as a potential multi-value scenario
+        k_vals = obj.get(k, [])
+        k_vals.append(v)
+        obj[k] = k_vals
+
+    return obj
