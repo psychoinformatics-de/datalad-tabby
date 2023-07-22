@@ -139,9 +139,6 @@ def _load_tabby_many(
     array = list()
     fieldnames = None
 
-    # with jsonld==True, looks for a context
-    ctx = _get_corresponding_context(src)
-
     with src.open(newline='') as tsvfile:
         # we cannot use DictReader -- we need to support identically named
         # columns
@@ -162,17 +159,12 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
-
-            # TODO optimize and not read spec from file for each row
-            # apply any overrides
-            obj.update(_build_overrides(src, obj))
-
-            if ctx:
-                _assigned_context(obj, ctx)
+            obj = _manyrow2obj(row, fieldnames)
+            obj = _postproc_tabby_obj(
+                obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
 
             # simplify single-item lists to a plain value
-            array.append(_compact_obj(obj))
+            array.append(obj)
     return array
 
 
@@ -183,7 +175,9 @@ def _resolve_value(
     recursive: bool,
     trace: List,
 ):
-    if not recursive or not v.startswith('@tabby-'):
+    if not recursive:
+        return v
+    if not isinstance(v, str):
         return v
 
     if v.startswith('@tabby-single-'):
@@ -207,28 +201,12 @@ def _resolve_value(
 
 
 def _manyrow2obj(
-    src: Path,
-    row: List,
-    jsonld: bool,
+    vals: List,
     fieldnames: List,
-    recursive: bool,
-    trace: List,
 ) -> Dict:
     # if we get here, this is a value row, representing an individual
     # object
     obj = {}
-    vals = [
-        # look for @tabby-... imports in values, and act on them.
-        # keep empty for now to maintain fieldname association
-        _resolve_value(
-            v,
-            src,
-            jsonld=jsonld,
-            recursive=recursive,
-            trace=trace,
-        ) if v else v
-        for v in row
-    ]
     if len(vals) > len(fieldnames):
         # we have extra values, merge then into the column
         # corresponding to the last key
