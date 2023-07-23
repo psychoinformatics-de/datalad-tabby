@@ -67,6 +67,10 @@ def _load_tabby_single(
 ) -> Dict:
     jfpath = _get_corresponding_jsondata_fpath(src)
     obj = json.load(jfpath.open()) if jfpath.exists() else {}
+    if obj and not src.exists():
+        # early exit, there is no tabular data
+        return _postproc_tabby_obj(
+            obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
 
     with src.open(newline='') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
@@ -141,7 +145,26 @@ def _load_tabby_many(
     recursive: bool,
     trace: List,
 ) -> List[Dict]:
+    obj_tmpl = {}
     array = list()
+    jfpath = _get_corresponding_jsondata_fpath(src)
+    if jfpath.exists():
+        jdata = json.load(jfpath.open())
+        if isinstance(jdata, dict):
+            obj_tmpl = jdata
+        elif isinstance(jdata, list):
+            array.extend(
+                _postproc_tabby_obj(
+                    obj, src=src, jsonld=jsonld, recursive=recursive,
+                    trace=trace)
+                for obj in jdata
+            )
+    if array and not src.exists():
+        # early exit, there is no tabular data
+        return array
+
+    # the table field/column names have purposefully _nothing_ to do with any
+    # possibly loaded JSON data
     fieldnames = None
 
     with src.open(newline='') as tsvfile:
@@ -164,7 +187,8 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            obj = _manyrow2obj(row, fieldnames)
+            obj = obj_tmpl.copy()
+            obj.update(_manyrow2obj(row, fieldnames))
             obj = _postproc_tabby_obj(
                 obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
 
