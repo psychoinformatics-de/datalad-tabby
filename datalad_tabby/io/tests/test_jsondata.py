@@ -5,7 +5,7 @@ from .. import load_tabby
 
 def test_load_tabby_import_via_jsondata(tmp_path):
     # minimalistic record in singledir format
-    root = tmp_path / 'root.json'
+    root = tmp_path / 'root.tsv'
     root.write_text('name\tmyname\n')
     comp = tmp_path / 'comp.tsv'
     comp.write_text('sub\tsome\n')

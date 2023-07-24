@@ -212,18 +212,31 @@ def _resolve_value(
     if v.startswith('@tabby-single-'):
         loader = _load_tabby_single
         src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[14:])
+    elif v.startswith('@tabby-optional-single-'):
+        loader = _load_tabby_single
+        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[23:])
     elif v.startswith('@tabby-many-'):
         loader = _load_tabby_many
         src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[12:])
+    elif v.startswith('@tabby-optional-many-'):
+        loader = _load_tabby_many
+        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[21:])
     else:
         # strange, but not enough reason to fail
         return v
 
     trace = _build_import_trace(src, trace)
 
-    return loader(
-        src=src,
-        jsonld=jsonld,
-        recursive=recursive,
-        trace=trace,
-    )
+    try:
+        loaded = loader(
+            src=src,
+            jsonld=jsonld,
+            recursive=recursive,
+            trace=trace,
+        )
+    except FileNotFoundError:
+        if v.startswith('@tabby-optional-'):
+            return {}
+        else:
+            raise
+    return loaded
