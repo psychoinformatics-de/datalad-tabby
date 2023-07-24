@@ -10,7 +10,7 @@ document.  The different types of components are:
 
 sheet
   The main building block of a `tabby` record. A sheet contains key-value pairs
-  in a tabular format. See `Sheet types`_ for details.
+  in a table(-like) format. See `Sheet types`_ for details.
 
 context
   A record-global, or sheet-specific JSON-LD_ context that defines the
@@ -57,7 +57,7 @@ where
 
 - ``<extension>`` uniquely identifies the nature of the record component:
 
-  - ``tsv`` for a `sheet`
+  - ``tsv`` or ``json`` for a `sheet`
   - ``ctx.jsonld`` for a `context`
   - ``override.json`` for an `override` specification
 
@@ -65,16 +65,17 @@ where
 Sheet types
 ===========
 
-Tabular metadata is represented in plain-text, tab-separated-value (TSV_) files.
-`tabby` defines how this tabular information is converted to structured data
-that can be represented in formats like JSON.
+Tabular metadata is represented in plain-text files, typically in
+tab-separated-value (TSV_) format (but see the layout specifications for a
+JSON alternative).  `tabby` defines how this tabular information is
+converted to structured data that can be represented in formats like JSON.
 
 Two different sheet layouts are distinguished and are described below. The
 particular layout cannot necessarily be inferred from the file content.
 Instead, the specific semantic is declared when `Connecting sheets`_.
 
-No data type conversion of any kind is performed when reading data from
-sheets. Any item is represented as a plain-text string.
+No data type conversion of any kind is performed when reading data from sheets
+in TSV-format. Any item is represented as a plain-text string.
 
 
 The ``single`` layout
@@ -96,6 +97,12 @@ is declared for a table row, the entire row (i.e., the key) is skipped)
 
 Single-item list values are compacted by removing the containing list and
 assigning the only items directly as the value.
+
+When a JSON-file is present (either in addition to a TSV-table or standalone),
+it must contain a JSON-object. Keys and values in this object are updated with
+the information read from a corresponding TSV-file, if one exists. Data read from
+JSON or TSV files are interpreted in the exact same fashion. The only difference
+is that JSON-native data types are preserved.
 
 
 The ``many`` layout
@@ -123,6 +130,16 @@ and is assigned as the value corresponding to that last key.
 Single-item list values are compacted by removing the containing list and
 assigning the only items directly as the value.
 
+When a JSON-file is present (either in addition to a TSV-table or standalone),
+it must contain ether a JSON-object or a JSON-array. If it contains a
+JSON-object, this object is used as the template for any object read from a
+corresponding TSV-file's rows (in the same fashion as TSV-based information
+updates a JSON-object in the ``single`` layout). If it contains an array, all
+elements in the array are interpreted as items in the ``many`` table, which
+precede any items read from rows in a corresponding TSV-file, if one exists.
+Otherwise, data read from JSON or TSV files are interpreted in the exact same
+fashion. The only difference is that JSON-native data types are preserved.
+
 
 Metadata record entry point (root)
 ==================================
@@ -133,7 +150,7 @@ convention to identify this root record via a particular name, such as
 ``dataset``.
 
 A minimal metadata record on a dataset about "penguins" can be represented in a
-single file, such as ``penguins_dataset.tsv``.
+single file, such as ``penguins_dataset.tsv``, or ``penguins_dataset.json``.
 
 
 Connecting sheets
@@ -157,6 +174,10 @@ the two basic sheet layouts.
 
 These import statements can be used in any value field in any of the two sheet
 layouts. This includes value list (array) items.
+
+Imports are not file-format specific, hence the sheet name must not include a
+file extension. An imported sheet can always be in TSV-format, JSON-format, or
+a combination of both formats.
 
 
 Defining context

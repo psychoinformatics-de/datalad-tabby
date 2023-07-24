@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 from typing import (
     Dict,
@@ -15,8 +16,10 @@ from .load_utils import (
     _build_import_trace,
     _build_overrides,
     _get_corresponding_context,
+    _get_corresponding_jsondata_fpath,
     _get_corresponding_sheet_fpath,
     _get_index_after_last_nonempty,
+    _manyrow2obj,
 )
 
 
@@ -62,7 +65,13 @@ def _load_tabby_single(
     recursive: bool,
     trace: List,
 ) -> Dict:
-    obj = {}
+    jfpath = _get_corresponding_jsondata_fpath(src)
+    obj = json.load(jfpath.open()) if jfpath.exists() else {}
+    if obj and not src.exists():
+        # early exit, there is no tabular data
+        return _postproc_tabby_obj(
+            obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+
     with src.open(newline='') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         # row_id is useful for error reporting
@@ -80,23 +89,38 @@ def _load_tabby_single(
             if not val:
                 # skip properties with no value(s)
                 continue
-            # look for @tabby-... imports in values, and act on them
-            val = [
-                _resolve_value(
-                    v,
-                    src,
-                    jsonld=jsonld,
-                    recursive=recursive,
-                    trace=trace,
-                )
-                for v in val
-            ]
             # we do not amend values for keys!
             # another row for an already existing key overwrites
             # we support "sequence" values via multi-column values
             # supporting two ways just adds unnecessary complexity
             obj[key] = val
 
+    return _postproc_tabby_obj(
+        obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+
+
+def _postproc_tabby_obj(
+    obj: Dict,
+    src: Path,
+    jsonld: bool,
+    recursive: bool,
+    trace: List,
+):
+    # look for @tabby-... imports in values, and act on them
+    obj = {
+        key:
+        [
+            _resolve_value(
+                v,
+                src,
+                jsonld=jsonld,
+                recursive=recursive,
+                trace=trace,
+            )
+            for v in (val if isinstance(val, list) else [val])
+        ]
+        for key, val in obj.items()
+    }
     # apply any overrides
     obj.update(_build_overrides(src, obj))
 
@@ -121,11 +145,27 @@ def _load_tabby_many(
     recursive: bool,
     trace: List,
 ) -> List[Dict]:
+    obj_tmpl = {}
     array = list()
-    fieldnames = None
+    jfpath = _get_corresponding_jsondata_fpath(src)
+    if jfpath.exists():
+        jdata = json.load(jfpath.open())
+        if isinstance(jdata, dict):
+            obj_tmpl = jdata
+        elif isinstance(jdata, list):
+            array.extend(
+                _postproc_tabby_obj(
+                    obj, src=src, jsonld=jsonld, recursive=recursive,
+                    trace=trace)
+                for obj in jdata
+            )
+    if array and not src.exists():
+        # early exit, there is no tabular data
+        return array
 
-    # with jsonld==True, looks for a context
-    ctx = _get_corresponding_context(src)
+    # the table field/column names have purposefully _nothing_ to do with any
+    # possibly loaded JSON data
+    fieldnames = None
 
     with src.open(newline='') as tsvfile:
         # we cannot use DictReader -- we need to support identically named
@@ -147,13 +187,13 @@ def _load_tabby_many(
                 fieldnames = row[:_get_index_after_last_nonempty(row)]
                 continue
 
-            obj = _manyrow2obj(src, row, jsonld, fieldnames, recursive, trace)
-
-            if ctx:
-                _assigned_context(obj, ctx)
+            obj = obj_tmpl.copy()
+            obj.update(_manyrow2obj(row, fieldnames))
+            obj = _postproc_tabby_obj(
+                obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
 
             # simplify single-item lists to a plain value
-            array.append(_compact_obj(obj))
+            array.append(obj)
     return array
 
 
@@ -164,7 +204,9 @@ def _resolve_value(
     recursive: bool,
     trace: List,
 ):
-    if not recursive or not v.startswith('@tabby-'):
+    if not recursive:
+        return v
+    if not isinstance(v, str):
         return v
 
     if v.startswith('@tabby-single-'):
@@ -185,54 +227,3 @@ def _resolve_value(
         recursive=recursive,
         trace=trace,
     )
-
-
-def _manyrow2obj(
-    src: Path,
-    row: List,
-    jsonld: bool,
-    fieldnames: List,
-    recursive: bool,
-    trace: List,
-) -> Dict:
-    # if we get here, this is a value row, representing an individual
-    # object
-    obj = {}
-    vals = [
-        # look for @tabby-... imports in values, and act on them.
-        # keep empty for now to maintain fieldname association
-        _resolve_value(
-            v,
-            src,
-            jsonld=jsonld,
-            recursive=recursive,
-            trace=trace,
-        ) if v else v
-        for v in row
-    ]
-    if len(vals) > len(fieldnames):
-        # we have extra values, merge then into the column
-        # corresponding to the last key
-        last_key_idx = len(fieldnames) - 1
-        lc_vals = vals[last_key_idx:]
-        lc_vals = lc_vals[:_get_index_after_last_nonempty(lc_vals)]
-        vals[last_key_idx] = lc_vals
-
-    # merge values with keys, amending duplicate keys as necessary
-    for i, k in enumerate(fieldnames):
-        if i >= len(vals):
-            # no more values defined in this row, skip this key
-            continue
-        v = vals[i]
-        if not v:
-            # no value, nothing to store or append
-            continue
-        # treat any key as a potential multi-value scenario
-        k_vals = obj.get(k, [])
-        k_vals.append(v)
-        obj[k] = k_vals
-
-    # TODO optimize and not read spec from file for each row
-    # apply any overrides
-    obj.update(_build_overrides(src, obj))
-    return obj
