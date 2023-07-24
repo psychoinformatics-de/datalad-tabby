@@ -179,6 +179,15 @@ Imports are not file-format specific, hence the sheet name must not include a
 file extension. An imported sheet can always be in TSV-format, JSON-format, or
 a combination of both formats.
 
+Two additional import statements are supported:
+
+- ``@tabby-optional-single-<sheetname>``
+- ``@tabby-optional-many-<sheetname>``
+
+They work exactly as their non-optional counterparts. The only difference is
+that when a sheet imported in this way is not present, the import is skipped
+rather than causing an error.
+
 
 Defining context
 ================

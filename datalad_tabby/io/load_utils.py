@@ -129,8 +129,10 @@ def _compact_obj(obj: Dict) -> Dict:
         # structure
         vals if k == '@context' else vals if len(vals) > 1 else vals[0]
         for k, vals in obj.items()
-        # skip empty containers entirely
-        if not (isinstance(vals, (dict, list)) and not vals)
+        # let anything pass that is not a container, or a container that
+        # is not entirely made up of empty containers (at the first level)
+        if not isinstance(vals, (dict, list)) or any(
+            not isinstance(v, (dict, list)) or v for v in vals)
     }
 
 
