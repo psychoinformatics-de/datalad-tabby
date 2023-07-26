@@ -29,6 +29,7 @@ def load_tabby(
     single: bool = True,
     jsonld: bool = True,
     recursive: bool = True,
+    cpaths: List | None = None,
 ) -> Dict | List:
     """Load a tabby (TSV) record as structured (JSON(-LD)) data
 
@@ -50,11 +51,18 @@ def load_tabby(
     With the ``jsonld`` flag, a declared or default JSON-LD context is
     loaded and inserted into the record.
     """
+    std_convention_path = Path(__file__).parent / 'conventions'
+    if cpaths is None:
+        cpaths = [std_convention_path]
+    else:
+        cpaths.append(std_convention_path)
+
     return (_load_tabby_single if single else _load_tabby_many)(
         src=src,
         jsonld=jsonld,
         recursive=recursive,
         trace=[],
+        cpaths=cpaths,
     )
 
 
@@ -64,13 +72,15 @@ def _load_tabby_single(
     jsonld: bool,
     recursive: bool,
     trace: List,
+    cpaths: List,
 ) -> Dict:
-    jfpath = _get_corresponding_jsondata_fpath(src)
+    jfpath = _get_corresponding_jsondata_fpath(src, cpaths)
     obj = json.load(jfpath.open()) if jfpath.exists() else {}
     if obj and not src.exists():
         # early exit, there is no tabular data
         return _postproc_tabby_obj(
-            obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+            obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace,
+            cpaths=cpaths)
 
     with src.open(newline='') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
@@ -96,7 +106,8 @@ def _load_tabby_single(
             obj[key] = val
 
     return _postproc_tabby_obj(
-        obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+        obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace,
+        cpaths=cpaths)
 
 
 def _postproc_tabby_obj(
@@ -105,6 +116,7 @@ def _postproc_tabby_obj(
     jsonld: bool,
     recursive: bool,
     trace: List,
+    cpaths: List,
 ):
     # look for @tabby-... imports in values, and act on them
     obj = {
@@ -116,13 +128,14 @@ def _postproc_tabby_obj(
                 jsonld=jsonld,
                 recursive=recursive,
                 trace=trace,
+                cpaths=cpaths,
             )
             for v in (val if isinstance(val, list) else [val])
         ]
         for key, val in obj.items()
     }
     # apply any overrides
-    obj.update(_build_overrides(src, obj))
+    obj.update(_build_overrides(src, obj, cpaths))
 
     obj = _compact_obj(obj)
 
@@ -131,7 +144,7 @@ def _postproc_tabby_obj(
         return obj
 
     # with jsonld==True, looks for a context
-    ctx = _get_corresponding_context(src)
+    ctx = _get_corresponding_context(src, cpaths)
     if ctx:
         _assigned_context(obj, ctx)
 
@@ -144,10 +157,11 @@ def _load_tabby_many(
     jsonld: bool,
     recursive: bool,
     trace: List,
+    cpaths: List,
 ) -> List[Dict]:
     obj_tmpl = {}
     array = list()
-    jfpath = _get_corresponding_jsondata_fpath(src)
+    jfpath = _get_corresponding_jsondata_fpath(src, cpaths)
     if jfpath.exists():
         jdata = json.load(jfpath.open())
         if isinstance(jdata, dict):
@@ -156,7 +170,7 @@ def _load_tabby_many(
             array.extend(
                 _postproc_tabby_obj(
                     obj, src=src, jsonld=jsonld, recursive=recursive,
-                    trace=trace)
+                    trace=trace, cpaths=cpaths)
                 for obj in jdata
             )
     if array and not src.exists():
@@ -190,7 +204,8 @@ def _load_tabby_many(
             obj = obj_tmpl.copy()
             obj.update(_manyrow2obj(row, fieldnames))
             obj = _postproc_tabby_obj(
-                obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace)
+                obj, src=src, jsonld=jsonld, recursive=recursive, trace=trace,
+                cpaths=cpaths)
 
             # simplify single-item lists to a plain value
             array.append(obj)
@@ -203,6 +218,7 @@ def _resolve_value(
     jsonld: bool,
     recursive: bool,
     trace: List,
+    cpaths: List,
 ):
     if not recursive:
         return v
@@ -211,16 +227,20 @@ def _resolve_value(
 
     if v.startswith('@tabby-single-'):
         loader = _load_tabby_single
-        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[14:])
+        src = _get_corresponding_sheet_fpath(
+            src_sheet_fpath, v[14:], cpaths)
     elif v.startswith('@tabby-optional-single-'):
         loader = _load_tabby_single
-        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[23:])
+        src = _get_corresponding_sheet_fpath(
+            src_sheet_fpath, v[23:], cpaths)
     elif v.startswith('@tabby-many-'):
         loader = _load_tabby_many
-        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[12:])
+        src = _get_corresponding_sheet_fpath(
+            src_sheet_fpath, v[12:], cpaths)
     elif v.startswith('@tabby-optional-many-'):
         loader = _load_tabby_many
-        src = _get_corresponding_sheet_fpath(src_sheet_fpath, v[21:])
+        src = _get_corresponding_sheet_fpath(
+            src_sheet_fpath, v[21:], cpaths)
     else:
         # strange, but not enough reason to fail
         return v
@@ -233,6 +253,7 @@ def _resolve_value(
             jsonld=jsonld,
             recursive=recursive,
             trace=trace,
+            cpaths=cpaths,
         )
     except FileNotFoundError:
         if v.startswith('@tabby-optional-'):
