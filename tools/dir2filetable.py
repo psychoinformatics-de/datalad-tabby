@@ -31,7 +31,7 @@ def dir2filetable(
 
     Args:
         rootpath (str): The root directory for which the table 
-            shoult be printed.
+            should be printed.
         
         hash (str, optional): Name of the algorithm to be used for
             calculating file hashes, e.g. 'md5' or 'sha256'. The
