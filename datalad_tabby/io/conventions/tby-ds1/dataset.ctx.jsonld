@@ -1,0 +1,21 @@
+{
+  "dcterms": "https://purl.org/dc/terms/",
+  "schema": "https://schema.org",
+  "author": "schema:author",
+  "description": "schema:description",
+  "hasPart": "dcterms:hasPart",
+  "homepage": "schema:mainEntityOfPage",
+  "identifier": "schema:identifier",
+  "keywords": "schema:keywords",
+  "last-updated": "schema:dateModified",
+  "license": {
+    "@id": "schema:license",
+    "@type": "@vocab",
+    "@context": {
+      "@vocab": "https://spdx.org/licenses/"
+    }
+  },
+  "name": "schema:name",
+  "title": "schema:title",
+  "version": "schema:version"
+}

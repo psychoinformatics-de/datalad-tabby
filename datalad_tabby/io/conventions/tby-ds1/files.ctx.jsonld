@@ -1,0 +1,12 @@
+{
+  "afo": "http://purl.allotrope.org/ontologies/result#",
+  "obo": "https://purl.obolibrary.org/obo/",
+  "schema": "https://schema.org",
+  "size[bytes]": "schema:contentSize",
+  "checksum[md5]": "obo:NCIT_C171276",
+  "path[POSIX]": {
+    "@id": "schema:name",
+    "@type": "afo:AFR_0001928"
+  },
+  "url": "schema:contentUrl"
+}

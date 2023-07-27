@@ -27,6 +27,7 @@ mix-and-match from any available convention.
    :caption: Built-in conventions
    :maxdepth: 1
 
+   tby-ds1.rst
    tby-sd1.rst
 
 
