@@ -1,0 +1,4 @@
+{
+  "@id": "https://orcid.org/{orcid[0]}",
+  "@type": "schema:Person"
+}

@@ -62,6 +62,21 @@ where
   - ``override.json`` for an `override` specification
 
 
+.. _sec_convention_declaration:
+
+Sheet convention declaration
+----------------------------
+
+Sheet names support a dedicated syntax for declaring that a sheet conforms to a
+particular set of conventions (see :ref:`chap_conventions`). The convention
+label is appended to the sheet name as a suffix, delimited by the ``@``
+character. For example, declaring that the ``dataset`` sheet implements
+``mystandard`` conventions, use ``dataset@mystandard`` as the full sheet name.
+
+Note that for all practical purposes the conventions suffix is a part part of
+the whole sheet name and has to be included anywhere a sheet name is used.
+
+
 Sheet types
 ===========
 

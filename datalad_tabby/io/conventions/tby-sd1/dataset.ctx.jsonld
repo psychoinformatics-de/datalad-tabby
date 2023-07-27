@@ -1,0 +1,18 @@
+{
+  "bibo": "https://purl.org/ontology/bibo/",
+  "obo": "https://purl.obolibrary.org/",
+  "schema": "https://schema.org",
+  "author": "schema:author",
+  "citation": "schema:citation",
+  "description": "schema:description",
+  "doi": "bibo:doi",
+  "funding": "schema:funding",
+  "homepage": "schema:mainEntityOfPage",
+  "identifier": "schema:identifier",
+  "keyword": "schema:keywords",
+  "last-updated": "schema:dateModified",
+  "license": "schema:license",
+  "name": "schema:name",
+  "title": "schema:title",
+  "version": "schema:version"
+}
