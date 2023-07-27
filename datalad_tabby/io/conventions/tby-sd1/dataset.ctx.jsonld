@@ -9,7 +9,7 @@
   "funding": "schema:funding",
   "homepage": "schema:mainEntityOfPage",
   "identifier": "schema:identifier",
-  "keyword": "schema:keywords",
+  "keywords": "schema:keywords",
   "last-updated": "schema:dateModified",
   "license": "schema:license",
   "name": "schema:name",
