@@ -1,0 +1,46 @@
+{
+  "@context": {
+    "afo": "http://purl.allotrope.org/ontologies/result#",
+    "dcterms": "https://purl.org/dc/terms/",
+    "obo": "https://purl.obolibrary.org/obo/",
+    "schema": "https://schema.org"
+  },
+  "@type": "schema:Dataset",
+  "dcterms:hasPart": [
+    {
+      "@id": "529ff606a38b37a2e5478c1abfeca231",
+      "@type": "schema:DigitalDocument",
+      "obo:NCIT_C171276": "529ff606a38b37a2e5478c1abfeca231",
+      "schema:contentSize": "1300",
+      "schema:contentUrl": "https://raw.githubusercontent.com/psychoinformatics-de/datalad-tabby/2738d8a12fb138d3fe107c6bee443c13c9f4f6ea/LICENSE",
+      "schema:name": {
+        "@type": "afo:AFR_0001928",
+        "@value": "LICENSE"
+      }
+    },
+    {
+      "@id": "ef2979a70a8d95a24cd1402bd68e1c4a",
+      "@type": "schema:DigitalDocument",
+      "obo:NCIT_C171276": "ef2979a70a8d95a24cd1402bd68e1c4a",
+      "schema:contentSize": "1755",
+      "schema:contentUrl": "https://raw.githubusercontent.com/psychoinformatics-de/datalad-tabby/2738d8a12fb138d3fe107c6bee443c13c9f4f6ea/docs/README.md",
+      "schema:name": {
+        "@type": "afo:AFR_0001928",
+        "@value": "docs/README.md"
+      }
+    }
+  ],
+  "schema:author": {
+    "@type": "schema:Person",
+    "schema:email": "jd@example.com",
+    "schema:name": "Jane Doe"
+  },
+  "schema:dateModified": "2023-07-27",
+  "schema:description": "This is a fictitious dataset.",
+  "schema:license": {
+    "@id": "https://spdx.org/licenses/CC-PDDC"
+  },
+  "schema:mainEntityOfPage": "http://docs.datalad.org/projects/tabby/en/latest",
+  "schema:name": "demo",
+  "schema:title": "My demo dataset"
+}

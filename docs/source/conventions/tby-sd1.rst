@@ -1,4 +1,4 @@
-Scientific Dataset (v1, ``tby-sd1``)
+Scientific dataset (v1, ``tby-sd1``)
 ====================================
 
 This convention defines a fairly minimalistic description of a scientific dataset.

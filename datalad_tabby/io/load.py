@@ -17,6 +17,7 @@ from .load_utils import (
     _get_index_after_last_nonempty,
     _get_tabby_prefix_from_sheet_fpath,
     _manyrow2obj,
+    _sanitize_override_key,
 )
 
 
@@ -274,6 +275,11 @@ class _TabbyLoader:
         return self._cvnfb(fpath.parent / f'{fpath.stem}.override.json')
 
     def _build_overrides(self, src: Path, obj: Dict, cpaths):
+        # sanitize key names in object
+        sanitized_obj = {
+            _sanitize_override_key(k): v
+            for k, v in obj.items()
+        }
         overrides = {}
         ofpath = self._cvnfb(self._get_corresponding_override_fpath(src))
         if not ofpath.exists():
@@ -290,7 +296,7 @@ class _TabbyLoader:
                     ov.append(s)
                     continue
                 try:
-                    o = s.format(**obj)
+                    o = s.format(**sanitized_obj)
                 except KeyError:
                     # we do not have what this override spec need, skip it
                     # TODO log this

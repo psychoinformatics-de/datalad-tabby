@@ -1,17 +1,20 @@
 {
-  "bibo": "https://purl.org/ontology/bibo/",
-  "obo": "https://purl.obolibrary.org/",
+  "dcterms": "https://purl.org/dc/terms/",
   "schema": "https://schema.org",
   "author": "schema:author",
-  "citation": "schema:citation",
   "description": "schema:description",
-  "doi": "bibo:doi",
-  "funding": "schema:funding",
+  "hasPart": "dcterms:hasPart",
   "homepage": "schema:mainEntityOfPage",
   "identifier": "schema:identifier",
   "keywords": "schema:keywords",
   "last-updated": "schema:dateModified",
-  "license": "schema:license",
+  "license": {
+    "@id": "schema:license",
+    "@type": "@vocab",
+    "@context": {
+      "@vocab": "https://spdx.org/licenses/"
+    }
+  },
   "name": "schema:name",
   "title": "schema:title",
   "version": "schema:version"

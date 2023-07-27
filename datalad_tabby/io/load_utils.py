@@ -92,3 +92,13 @@ def _manyrow2obj(
         obj[k] = k_vals
 
     return obj
+
+
+def _sanitize_override_key(key: str) -> str:
+    """Sanitize a key for use with the Python format language
+
+    An incoming key could be anything, but for use with the format
+    language it needs to become a valid Python variable identifier.
+    """
+    # here comes an adhoc set of cases we found necessary to handle
+    return key.replace('[', '_').replace(']', '_')
