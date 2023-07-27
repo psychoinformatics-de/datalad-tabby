@@ -41,8 +41,8 @@ def dir2filetable(
         recursive (bool, optional): Set this flag to recurse into
             subdirectories. Defaults to False.
 
-        output (str, optional): A filepath to print the output to.
-            Defaults to 'stdout.
+        output (str, optional): A directory of filename to save the
+            output to. Defaults to 'stdout.
     """
     # Get file list
     out_info = []
@@ -58,7 +58,7 @@ def dir2filetable(
     fieldnames = out_info[0].keys()
     headernames = [header[fn] for fn in fieldnames]
     if output != 'stdout':
-        outpath = Path(output)
+        outpath = _get_output_path(output)
         with open(outpath, 'w', encoding='utf8', newline='') as output_file:
             fc = csv.DictWriter(
                 output_file,
@@ -67,6 +67,7 @@ def dir2filetable(
             )
             fc.writerow(dict((fn,hn) for (fn,hn) in zip(fieldnames, headernames)))
             fc.writerows(out_info)
+        print(f'Output saved to: {outpath.absolute()}')
     else:
         print(f'{header["hash"]}\t{header["size"]}\t{header["path"]}\t{header["url"]}')
         for el in out_info:
@@ -114,6 +115,32 @@ def get_file_info(rp: Path, fp: Path, hash_algo: str = 'md5'):
     )
 
 
+def _get_output_path(out_str):
+    """
+    Creates Path object from the provided output string with a filename
+    compliant with the tabby convention for a collection-of-files dataset (see: 
+    https://docs.datalad.org/projects/tabby/en/latest/conventions/tby-ds1.html)
+
+    If an existing directory is provided, the output filename will be
+    'files@tby-ds1.tsv', saved to the provided directory. If not, the provided
+    path will be interpreted as a filename, from which the prefix will be
+    derived, which is then prepended to '_files@tby-ds1.tsv' to form the output
+    filename.
+    """
+    outpath = Path(out_str)
+    if outpath.is_dir():
+        output_path = outpath / 'files@tby-ds1.tsv'
+    else:
+        # isolate prefix, without extension/suffix and without
+        # TODO: remove any redundancies in prefix e.g. if user
+        # provided an output filename already containing tby-ds1
+        # convention specification
+        prefix = outpath.stem
+        output_path = outpath.parent / f'{prefix}_files@tby-ds1.tsv'
+    # return tby-ds1 compliant file sheet name
+    return output_path
+
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser(
         description=__doc__,
@@ -137,11 +164,15 @@ if __name__ == '__main__':
     )
     p.add_argument(
         '--output', default='stdout',
-        help="Filename to which the output should be printed. If not supplied, "
-        "the output is printed to STDOUT"
+        help="Directory or filename to which the output should be saved. "
+        "If an existing directory is supplied, the file 'files@tby-ds1.tsv' "
+        "will be saved to that directory. "
+        "If a filename supplied, it will be used to derive the prefix which is "
+        "then prepended to '_files@tby-ds1.tsv' to form the filename at which the "
+        "output will be saved. "
+        "If this argument is not supplied, the output is printed to STDOUT"
     )
     args = p.parse_args()
-    print(args.non_recursive)
     dir2filetable(
         rootpath=args.directory,
         hash=args.hash,
