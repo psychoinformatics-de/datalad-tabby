@@ -22,19 +22,12 @@ import csv
 def dir2filetable(
     rootpath: str,
     hash: str = 'md5',
-    recursive: bool = False,
+    nonrecursive: bool = False,
     output: str = 'stdout',
 ):
     """
     Print a table with information about the files contained in
-    a directory on a filesystem. File information is compliant
-    with the tabby convention for a collection-of-files dataset
-    (see: https://docs.datalad.org/projects/tabby/en/latest/conventions/tby-ds1.html)
-    and includes:
-        - the file path (column: path[POSIX])
-        - the file content checksum, using a specified hash algorithm
-          which defaults to md5 (column: checksum[md5])
-        - the file size in bytes (column: size[bytes])
+    a directory on a filesystem.
 
     Args:
         rootpath (str): The root directory for which the table 
@@ -53,7 +46,7 @@ def dir2filetable(
     """
     # Get file list
     out_info = []
-    _dir2filelist(Path(rootpath), Path(rootpath), out_info, hash, recursive)
+    _dir2filelist(Path(rootpath), Path(rootpath), out_info, hash, not nonrecursive)
     # Output the data
     # header compliant with tby-ds1 convention
     header = {
@@ -85,7 +78,7 @@ def _dir2filelist(
     relpath: Path,
     result: list,
     hash: str = 'md5',
-    recursive: bool = False,
+    recursive: bool = True,
 ):
     """"""
     if relpath is None:
@@ -137,9 +130,10 @@ if __name__ == '__main__':
         "'hashlib' module. Default = 'md5'"
     )
     p.add_argument(
-        '--recursive', action='store_true',
-        help="Generate a file listing recursively for all directories "
-        "starting from the root"
+        '--non-recursive', action='store_true',
+        help="Do not recurse into subdirectories when generating a file listing "
+        "for a given root path. Default = False, i.e. recursion always happens "
+        "unless this flag is passed."
     )
     p.add_argument(
         '--output', default='stdout',
@@ -147,9 +141,10 @@ if __name__ == '__main__':
         "the output is printed to STDOUT"
     )
     args = p.parse_args()
+    print(args.non_recursive)
     dir2filetable(
         rootpath=args.directory,
         hash=args.hash,
-        recursive=args.recursive,
+        nonrecursive=args.non_recursive,
         output=args.output,
     )
