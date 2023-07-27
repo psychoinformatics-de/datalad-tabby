@@ -48,6 +48,12 @@ annotated JSON-LD document on the dataset.
 .. literalinclude:: tby-ds1_demo/compacted.jsonld
    :language: json
 
+.. The compacted output was built with:
+   $ datalad tabby-load \
+       docs/source/conventions/tby-ds1_demo/dataset@tby-ds1.tsv \
+       --compact docs/source/conventions/tby-ds1_demo/ds1-compact.jsonld \
+   | jq > docs/source/conventions/tby-ds1_demo/compacted.jsonld
+
 
 Sheet types
 ^^^^^^^^^^^
