@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
 Print a table with information about the files contained in
-a directory on a filesystem. File information includes:
-    - the file path
+a directory on a filesystem. File information is compliant
+with the tabby convention for a collection-of-files dataset
+(see: https://docs.datalad.org/projects/tabby/en/latest/conventions/tby-ds1.html)
+and includes:
+    - the file path (column: path[POSIX])
     - the file content checksum, using a specified hash algorithm
-    - the file size in bytes
+      which defaults to md5 (column: checksum[md5])
+    - the file size in bytes (column: size[bytes])
 
 The output table can be printed to STDOUT or to a text file in TSV format.
 """
@@ -23,10 +27,14 @@ def dir2filetable(
 ):
     """
     Print a table with information about the files contained in
-    a directory on a filesystem. File information includes:
-        - the file path
+    a directory on a filesystem. File information is compliant
+    with the tabby convention for a collection-of-files dataset
+    (see: https://docs.datalad.org/projects/tabby/en/latest/conventions/tby-ds1.html)
+    and includes:
+        - the file path (column: path[POSIX])
         - the file content checksum, using a specified hash algorithm
-        - the file size in bytes
+          which defaults to md5 (column: checksum[md5])
+        - the file size in bytes (column: size[bytes])
 
     Args:
         rootpath (str): The root directory for which the table 
@@ -46,20 +54,30 @@ def dir2filetable(
     # Get file list
     out_info = []
     _dir2filelist(Path(rootpath), Path(rootpath), out_info, hash, recursive)
-    # Ooutput the data
+    # Output the data
+    # header compliant with tby-ds1 convention
+    header = {
+        'path': 'path[POSIX]',
+        'size': 'size[bytes]',
+        'hash': f'checksum[{hash}]',
+        'url': 'url'
+    }
+    fieldnames = out_info[0].keys()
+    headernames = [header[fn] for fn in fieldnames]
     if output != 'stdout':
         outpath = Path(output)
         with open(outpath, 'w', encoding='utf8', newline='') as output_file:
             fc = csv.DictWriter(
                 output_file,
-                fieldnames=out_info[0].keys(),
+                fieldnames=fieldnames,
                 delimiter='\t'
-                )
-            fc.writeheader()
+            )
+            fc.writerow(dict((fn,hn) for (fn,hn) in zip(fieldnames, headernames)))
             fc.writerows(out_info)
     else:
+        print(f'{header["hash"]}\t{header["size"]}\t{header["path"]}\t{header["url"]}')
         for el in out_info:
-            print(f'{el["hash"]}\t{el["size"]}\t{el["path"]}')
+            print(f'{el["hash"]}\t{el["size"]}\t{el["path"]}\t')
 
 
 def _dir2filelist(
@@ -99,6 +117,7 @@ def get_file_info(rp: Path, fp: Path, hash_algo: str = 'md5'):
     return dict(path=fp.relative_to(rp),
                 size=stats.st_size,
                 hash=h.hexdigest(),
+                url='',
     )
 
 
