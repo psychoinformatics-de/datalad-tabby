@@ -22,7 +22,7 @@ import csv
 def dir2filetable(
     rootpath: str,
     hash: str = 'md5',
-    nonrecursive: bool = False,
+    recursive: bool = True,
     output: str = 'stdout',
 ):
     """
@@ -46,7 +46,7 @@ def dir2filetable(
     """
     # Get file list
     out_info = []
-    _dir2filelist(Path(rootpath), Path(rootpath), out_info, hash, not nonrecursive)
+    _dir2filelist(Path(rootpath), Path(rootpath), out_info, hash, recursive)
     # Output the data
     # header compliant with tby-ds1 convention
     header = {
@@ -176,6 +176,6 @@ if __name__ == '__main__':
     dir2filetable(
         rootpath=args.directory,
         hash=args.hash,
-        nonrecursive=args.non_recursive,
+        recursive=not args.non_recursive,
         output=args.output,
     )
