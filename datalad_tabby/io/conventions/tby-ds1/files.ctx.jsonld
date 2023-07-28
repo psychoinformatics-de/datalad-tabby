@@ -1,8 +1,13 @@
 {
   "afo": "http://purl.allotrope.org/ontologies/result#",
+  "nfo": "https://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#",
   "obo": "https://purl.obolibrary.org/obo/",
   "schema": "https://schema.org",
-  "size[bytes]": "schema:contentSize",
+  "xsd": "http://www.w3.org/2001/XMLSchema#",
+  "size[bytes]": {
+    "@id": "nfo:fileSize",
+    "@type": "xsd:integer"
+  },
   "checksum[md5]": "obo:NCIT_C171276",
   "path[POSIX]": {
     "@id": "schema:name",
