@@ -3,6 +3,6 @@
   "dcterms": "https://purl.org/dc/terms/",
   "nfo": "https://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#",
   "obo": "https://purl.obolibrary.org/obo/",
-  "schema": "https://schema.org",
+  "schema": "https://schema.org/",
   "xsd": "http://www.w3.org/2001/XMLSchema#"
 }

@@ -1,7 +1,7 @@
 {
   "bibo": "https://purl.org/ontology/bibo/",
   "obo": "https://purl.obolibrary.org/",
-  "schema": "https://schema.org",
+  "schema": "https://schema.org/",
   "affiliation": "schema:affiliation",
   "email": "schema:email",
   "name": "schema:name",
