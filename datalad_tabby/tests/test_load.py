@@ -59,7 +59,7 @@ def test_load_compaction(tabby_tsv_record, tmp_path):
     # but compaction takes it out, when we define all relevant IRIs
     # in a global compaction context
     compaction = {
-        "schema": "https://schema.org",
+        "schema": "https://schema.org/",
     }
     compaction_fname = tmp_path / 'compact.jsonld'
     compaction_fname.write_text(json.dumps(compaction))

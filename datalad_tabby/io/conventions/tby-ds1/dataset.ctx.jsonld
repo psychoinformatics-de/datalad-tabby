@@ -1,6 +1,6 @@
 {
   "dcterms": "https://purl.org/dc/terms/",
-  "schema": "https://schema.org",
+  "schema": "https://schema.org/",
   "author": "schema:author",
   "description": "schema:description",
   "hasPart": "dcterms:hasPart",
