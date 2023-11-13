@@ -98,12 +98,14 @@ class _TabbyLoader:
             )
 
         try:
-            obj.update(self._parse_tsv_single(src))
+            tsv_obj = self._parse_tsv_single(src)
         except UnicodeDecodeError:
             # by default Path.open() uses locale.getencoding()
             # that didn't work, try guessing
             encoding = cs_from_path(src).best().encoding
-            obj.update(self._parse_tsv_single(src, encoding=encoding))
+            tsv_obj = self._parse_tsv_single(src, encoding=encoding)
+
+        obj.update(tsv_obj)
 
         return self._postproc_obj(obj, src=src, trace=trace)
 
@@ -159,18 +161,18 @@ class _TabbyLoader:
         # to do with any possibly loaded JSON data
 
         try:
-            array.extend(
-                self._parse_tsv_many(src, obj_tmpl, trace=trace, fieldnames=None)
+            tsv_array = self._parse_tsv_many(
+                src, obj_tmpl, trace=trace, fieldnames=None
             )
         except UnicodeDecodeError:
             # by default Path.open() uses locale.getencoding()
             # that didn't work, try guessing
             encoding = cs_from_path(src).best().encoding
-            array.extend(
-                self._parse_tsv_many(
-                    src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
-                )
+            tsv_array = self._parse_tsv_many(
+                src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
             )
+
+        array.extend(tsv_array)
 
         return array
 
