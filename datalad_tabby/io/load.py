@@ -10,6 +10,8 @@ from typing import (
     List,
 )
 
+from charset_normalizer import from_path as cs_from_path
+
 from .load_utils import (
     _assign_context,
     _compact_obj,
@@ -95,7 +97,19 @@ class _TabbyLoader:
                 trace=trace,
             )
 
-        with src.open(newline='') as tsvfile:
+        try:
+            obj.update(self._parse_tsv_single(src))
+        except UnicodeDecodeError:
+            # by default Path.open() uses locale.getencoding()
+            # that didn't work, try guessing
+            encoding = cs_from_path(src).best().encoding
+            obj.update(self._parse_tsv_single(src, encoding=encoding))
+
+        return self._postproc_obj(obj, src=src, trace=trace)
+
+    def _parse_tsv_single(self, src: Path, encoding: bool = None) -> Dict:
+        obj = {}
+        with src.open(newline='', encoding=encoding) as tsvfile:
             reader = csv.reader(tsvfile, delimiter='\t')
             # row_id is useful for error reporting
             for row_id, row in enumerate(reader):
@@ -117,8 +131,7 @@ class _TabbyLoader:
                 # we support "sequence" values via multi-column values
                 # supporting two ways just adds unnecessary complexity
                 obj[key] = val
-
-        return self._postproc_obj(obj, src=src, trace=trace)
+        return obj
 
     def _load_many(
         self,
@@ -144,26 +157,52 @@ class _TabbyLoader:
 
         # the table field/column names have purposefully _nothing_
         # to do with any possibly loaded JSON data
-        fieldnames = None
 
-        with src.open(newline='') as tsvfile:
+        try:
+            array.extend(
+                self._parse_tsv_many(src, obj_tmpl, trace=trace, fieldnames=None)
+            )
+        except UnicodeDecodeError:
+            # by default Path.open() uses locale.getencoding()
+            # that didn't work, try guessing
+            encoding = cs_from_path(src).best().encoding
+            array.extend(
+                self._parse_tsv_many(
+                    src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
+                )
+            )
+
+        return array
+
+    def _parse_tsv_many(
+        self,
+        src: Path,
+        obj_tmpl: Dict,
+        trace: List,
+        fieldnames: List | None = None,
+        encoding: str | None = None,
+    ) -> List[Dict]:
+        array = []
+        with src.open(newline="", encoding=encoding) as tsvfile:
             # we cannot use DictReader -- we need to support identically named
             # columns
-            reader = csv.reader(tsvfile, delimiter='\t')
+            reader = csv.reader(tsvfile, delimiter="\t")
             # row_id is useful for error reporting
             for row_id, row in enumerate(reader):
                 # row is a list of field, with only as many items
                 # as this particular row has columns
-                if not len(row) \
-                        or row[0].startswith('#') \
-                        or all(v is None for v in row):
+                if (
+                    not len(row)
+                    or row[0].startswith("#")
+                    or all(v is None for v in row)
+                ):
                     # skip empty rows, rows with no key, or rows with
                     # a comment key
                     continue
                 if fieldnames is None:
                     # the first non-ignored row defines the property names/keys
                     # cut `val` short and remove trailing empty items
-                    fieldnames = row[:_get_index_after_last_nonempty(row)]
+                    fieldnames = row[: _get_index_after_last_nonempty(row)]
                     continue
 
                 obj = obj_tmpl.copy()
