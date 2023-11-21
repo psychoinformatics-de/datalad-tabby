@@ -109,7 +109,7 @@ class _TabbyLoader:
 
         return self._postproc_obj(obj, src=src, trace=trace)
 
-    def _parse_tsv_single(self, src: Path, encoding: bool = None) -> Dict:
+    def _parse_tsv_single(self, src: Path, encoding: str | None = None) -> Dict:
         obj = {}
         with src.open(newline='', encoding=encoding) as tsvfile:
             reader = csv.reader(tsvfile, delimiter='\t')
