@@ -30,6 +30,7 @@ def load_tabby(
     jsonld: bool = True,
     recursive: bool = True,
     cpaths: List | None = None,
+    encoding: str | None = None,
 ) -> Dict | List:
     """Load a tabby (TSV) record as structured (JSON(-LD)) data
 
@@ -50,11 +51,14 @@ def load_tabby(
 
     With the ``jsonld`` flag, a declared or default JSON-LD context is
     loaded and inserted into the record.
+
+    Encoding used when reading tsv files can be specified as ``encoding``.
     """
     ldr = _TabbyLoader(
         jsonld=jsonld,
         recursive=recursive,
         cpaths=cpaths,
+        encoding=encoding,
     )
     return ldr(src=src, single=single)
 
@@ -65,6 +69,7 @@ class _TabbyLoader:
         jsonld: bool = True,
         recursive: bool = True,
         cpaths: List[Path] | None = None,
+        encoding: str | None = None,
     ):
         std_convention_path = Path(__file__).parent / 'conventions'
         if cpaths is None:
@@ -72,14 +77,14 @@ class _TabbyLoader:
         else:
             cpaths.append(std_convention_path)
         self._cpaths = cpaths
+        self._encoding = encoding
         self._jsonld = jsonld
         self._recursive = recursive
 
-    def __call__(self, src: Path, *, single: bool = True, encoding: str | None = None):
+    def __call__(self, src: Path, *, single: bool = True):
         return (self._load_single if single else self._load_many)(
             src=src,
             trace=[],
-            encoding=encoding,
         )
 
     def _load_single(
@@ -87,7 +92,6 @@ class _TabbyLoader:
         *,
         src: Path,
         trace: List,
-        encoding: str | None = None,
     ) -> Dict:
         jfpath = self._get_corresponding_jsondata_fpath(src)
         obj = json.load(jfpath.open()) if jfpath.exists() else {}
@@ -98,9 +102,8 @@ class _TabbyLoader:
                 src=src,
                 trace=trace,
             )
-
-        if encoding is not None:
-            tsv_obj = self._parse_tsv_single(src, encoding=encoding)
+        if self._encoding is not None:
+            tsv_obj = self._parse_tsv_single(src, encoding=self._encoding)
         else:
             try:
                 tsv_obj = self._parse_tsv_single(src)
@@ -145,7 +148,6 @@ class _TabbyLoader:
         *,
         src: Path,
         trace: List,
-        encoding: str | None = None,
     ) -> List[Dict]:
         obj_tmpl = {}
         array = list()
@@ -165,10 +167,9 @@ class _TabbyLoader:
 
         # the table field/column names have purposefully _nothing_
         # to do with any possibly loaded JSON data
-
-        if encoding is not None:
+        if self._encoding is not None:
             tsv_array = self._parse_tsv_many(
-                src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
+                src, obj_tmpl, trace=trace, fieldnames=None, encoding=self._encoding
             )
         else:
             try:
