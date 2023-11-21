@@ -28,6 +28,7 @@ def load_tabby(
     jsonld: bool = True,
     recursive: bool = True,
     cpaths: List | None = None,
+    encoding: str | None = None,
 ) -> Dict | List:
     """Load a tabby (TSV) record as structured (JSON(-LD)) data
 
@@ -48,11 +49,16 @@ def load_tabby(
 
     With the ``jsonld`` flag, a declared or default JSON-LD context is
     loaded and inserted into the record.
+
+    Tsv file encoding used when reading can be specified with the
+    ``encoding`` parameter.
+
     """
     ldr = _TabbyLoader(
         jsonld=jsonld,
         recursive=recursive,
         cpaths=cpaths,
+        encoding=encoding,
     )
     return ldr(src=src, single=single)
 
@@ -63,6 +69,7 @@ class _TabbyLoader:
         jsonld: bool = True,
         recursive: bool = True,
         cpaths: List[Path] | None = None,
+        encoding: str | None = None,
     ):
         std_convention_path = Path(__file__).parent / 'conventions'
         if cpaths is None:
@@ -70,6 +77,7 @@ class _TabbyLoader:
         else:
             cpaths.append(std_convention_path)
         self._cpaths = cpaths
+        self._encoding = encoding
         self._jsonld = jsonld
         self._recursive = recursive
 
@@ -95,7 +103,7 @@ class _TabbyLoader:
                 trace=trace,
             )
 
-        with src.open(newline='') as tsvfile:
+        with src.open(newline='', encoding=self._encoding) as tsvfile:
             reader = csv.reader(tsvfile, delimiter='\t')
             # row_id is useful for error reporting
             for row_id, row in enumerate(reader):
@@ -146,7 +154,7 @@ class _TabbyLoader:
         # to do with any possibly loaded JSON data
         fieldnames = None
 
-        with src.open(newline='') as tsvfile:
+        with src.open(newline='', encoding=self._encoding) as tsvfile:
             # we cannot use DictReader -- we need to support identically named
             # columns
             reader = csv.reader(tsvfile, delimiter='\t')
