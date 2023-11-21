@@ -95,4 +95,13 @@ def _sheet2tsv(ws: Worksheet, dest: Path):
             tsvfile,
             delimiter='\t',
         )
-        writer.writerows(ws.iter_rows(values_only=True))
+
+        # find the last nonempty row
+        max_idx = 1
+        for i, row in enumerate(ws.iter_rows(values_only=True)):
+            if any(v is not None for v in row):
+                max_idx = i + 1  # max row is a 1-based index
+
+        # write tsv, truncating empty rows at the end
+        writer.writerows(ws.iter_rows(values_only=True, max_row=max_idx))
+

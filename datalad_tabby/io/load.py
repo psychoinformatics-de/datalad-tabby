@@ -154,9 +154,12 @@ class _TabbyLoader:
             for row_id, row in enumerate(reader):
                 # row is a list of field, with only as many items
                 # as this particular row has columns
-                if not len(row) \
-                        or row[0].startswith('#') \
-                        or all(v is None for v in row):
+                if (
+                    not len(row)
+                    or row[0].startswith("#")
+                    or all(v is None for v in row)
+                    or all(v == "" for v in row)
+                ):
                     # skip empty rows, rows with no key, or rows with
                     # a comment key
                     continue
