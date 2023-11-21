@@ -75,10 +75,11 @@ class _TabbyLoader:
         self._jsonld = jsonld
         self._recursive = recursive
 
-    def __call__(self, src: Path, *, single: bool = True):
+    def __call__(self, src: Path, *, single: bool = True, encoding: str | None = None):
         return (self._load_single if single else self._load_many)(
             src=src,
             trace=[],
+            encoding=encoding,
         )
 
     def _load_single(
@@ -86,6 +87,7 @@ class _TabbyLoader:
         *,
         src: Path,
         trace: List,
+        encoding: str | None = None,
     ) -> Dict:
         jfpath = self._get_corresponding_jsondata_fpath(src)
         obj = json.load(jfpath.open()) if jfpath.exists() else {}
@@ -97,13 +99,16 @@ class _TabbyLoader:
                 trace=trace,
             )
 
-        try:
-            tsv_obj = self._parse_tsv_single(src)
-        except UnicodeDecodeError:
-            # by default Path.open() uses locale.getencoding()
-            # that didn't work, try guessing
-            encoding = cs_from_path(src).best().encoding
+        if encoding is not None:
             tsv_obj = self._parse_tsv_single(src, encoding=encoding)
+        else:
+            try:
+                tsv_obj = self._parse_tsv_single(src)
+            except UnicodeDecodeError:
+                # by default Path.open() uses locale.getencoding()
+                # that didn't work, try guessing
+                encoding = cs_from_path(src).best().encoding
+                tsv_obj = self._parse_tsv_single(src, encoding=encoding)
 
         obj.update(tsv_obj)
 
@@ -140,6 +145,7 @@ class _TabbyLoader:
         *,
         src: Path,
         trace: List,
+        encoding: str | None = None,
     ) -> List[Dict]:
         obj_tmpl = {}
         array = list()
@@ -160,17 +166,22 @@ class _TabbyLoader:
         # the table field/column names have purposefully _nothing_
         # to do with any possibly loaded JSON data
 
-        try:
-            tsv_array = self._parse_tsv_many(
-                src, obj_tmpl, trace=trace, fieldnames=None
-            )
-        except UnicodeDecodeError:
-            # by default Path.open() uses locale.getencoding()
-            # that didn't work, try guessing
-            encoding = cs_from_path(src).best().encoding
+        if encoding is not None:
             tsv_array = self._parse_tsv_many(
                 src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
             )
+        else:
+            try:
+                tsv_array = self._parse_tsv_many(
+                    src, obj_tmpl, trace=trace, fieldnames=None
+                )
+            except UnicodeDecodeError:
+                # by default Path.open() uses locale.getencoding()
+                # that didn't work, try guessing
+                encoding = cs_from_path(src).best().encoding
+                tsv_array = self._parse_tsv_many(
+                    src, obj_tmpl, trace=trace, fieldnames=None, encoding=encoding
+                )
 
         array.extend(tsv_array)
 
