@@ -28,7 +28,7 @@ covers the entire document, including content inserted from other tables.
 When individual tables require a different context specification, it can be
 declared in the respective ``<prefix>_<table-name>.ctx.jsonld`` side-car files.
 Such a context is inserted in each metadata object read from the respective
-table. Standard JSON-LD rules for context scoping and propgation apply to the
+table. Standard JSON-LD rules for context scoping and propagation apply to the
 semantics of such a declaration.
 
 A third approach to context specification is a record-global
