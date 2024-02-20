@@ -1,0 +1,48 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: datalad-tabby
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Michael
+    family-names: Hanke
+  - given-names: Stephan
+    family-names: Heunis
+  - given-names: Michał
+    family-names: Szczepanik
+  - given-names: Christian
+    family-names: Mönch
+  - given-names: Yaroslav O.
+    family-names: Halchenko
+repository-code: 'https://github.com/psychoinformatics-de/datalad-tabby'
+url: >-
+  https://docs.datalad.org/projects/tabby/en/latest/?badge=latest
+abstract: >-
+  This DataLad extension package provides tooling for
+  working with a particular metadata format: tabby.
+
+
+  Another format?!
+
+
+  Yes... No! tabby is JSON(-LD) in disguise.
+
+
+  In a nutshell, tabby aims to be an approach to assemble
+  complex metadata structures from simple building blocks:
+  tables. Tables are easy to understand with a clear
+  structure, just rows and columns. tabby specifies a few
+  syntax elements to connect tables to form more complex
+  structures. At the same time, tabby is implemented with
+  the mindset that metadata without defined vocabularies has
+  limited utility. Therefore, tabby aims to translate into
+  JSON-LD to provide semantic precision without imposing its
+  complexity on every aspect of metadata handling. This
+  makes it possible to let curators enrich metadata without
+  alienating these metadata from their original providers or
+  sources.
+license: MIT
